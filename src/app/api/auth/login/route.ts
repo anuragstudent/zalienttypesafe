@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     const data: LoginData = validate(loginSchema, body);
 
     // Mock authentication logic
-    if (data.email === "user@example.com" && data.password === "password123") {
+    if (data.email === "anurag@gmail.com" && data.password === "anurag123") {
       return NextResponse.json({
         error: false,
         message: "Login successful",

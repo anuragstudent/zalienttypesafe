@@ -20,6 +20,7 @@ import Image from "next/image";
 import { registerSchema, RegisterData } from "@/shared/validation/auth";
 import { useState } from "react";
 import { requestHandler } from "@/utils/client/requestHandler";
+import { Loader2 } from "lucide-react";
 
 export default function RegisterForm() {
   const form = useForm<RegisterData>({
@@ -112,13 +113,7 @@ export default function RegisterForm() {
             )}
           />
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></span>
-              </span>
-            ) : (
-              "Register"
-            )}
+            {isSubmitting ? <Loader2 className="animate-spin" /> : "Register"}
           </Button>
           <div className="mt-4 text-sm text-center">
             Already have an account?{" "}

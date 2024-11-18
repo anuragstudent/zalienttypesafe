@@ -22,6 +22,7 @@ import {
 } from "@/shared/validation/auth";
 import { useState } from "react";
 import { requestHandler } from "@/utils/client/requestHandler";
+import { Loader2 } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
@@ -85,13 +86,7 @@ export default function ForgotPasswordPage() {
             )}
           />
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? (
-              <span className="flex items-center gap-2">
-                <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></span>
-              </span>
-            ) : (
-              "Reset Password"
-            )}
+            {loading ? <Loader2 className="animate-spin" /> : "Reset Password"}
           </Button>
           <div className="mt-4 text-sm text-center">
             Remembered your password?{" "}
