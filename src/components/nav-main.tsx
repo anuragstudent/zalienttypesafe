@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronRight, type LucideIcon } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import {
   SidebarGroup,
@@ -32,10 +32,20 @@ type NavMainProps = {
 export function NavMain({ items, currentPageUrl }: NavMainProps) {
   const [expandedParent, setExpandedParent] = useState<string | null>(null);
 
+  useEffect(() => {
+    // Expand the parent menu if any sub-item is active
+    const parentWithActiveSubItem = items.find((item) =>
+      item.items?.some((subItem) => subItem.url === currentPageUrl)
+    );
+    if (parentWithActiveSubItem) {
+      setExpandedParent(parentWithActiveSubItem.title);
+    }
+  }, [items, currentPageUrl]);
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
-      <SidebarMenu>
+      <SidebarMenu className="overflow-hidden">
         {items.map((item) => {
           const hasSubItems = item.items && item.items.length > 0;
           const isExpanded = expandedParent === item.title;
@@ -85,13 +95,13 @@ export function NavMain({ items, currentPageUrl }: NavMainProps) {
               </SidebarMenuItem>
 
               {hasSubItems && isExpanded && (
-                <SidebarMenuSub className="ml-4 w-full">
+                <SidebarMenuSub className="ml-4 w-full overflow-hidden">
                   {item.items?.map((subItem, index) => {
                     const isSubActive = subItem.url === currentPageUrl;
                     const subItemClass = `flex items-center text-sm mr-2 hover:bg-sidebar-accent p-2 rounded-md ${
                       isSubActive
                         ? "text-[--brand-color] hover:text-white"
-                        : "text-muted-foreground hover:text-white "
+                        : "text-muted-foreground hover:text-white"
                     }`;
 
                     return (
