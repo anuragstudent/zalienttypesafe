@@ -1,3 +1,5 @@
+import { deleteCookie, getCookie } from "cookies-next"; // Assuming cookies-next for cookie management
+
 type RequestMethod = "GET" | "POST" | "PATCH" | "DELETE";
 
 export interface RequestOptions {
@@ -5,6 +7,8 @@ export interface RequestOptions {
   url: string;
   body?: Record<string, unknown>;
   headers?: HeadersInit;
+  onUnauthorized?: () => void; // Callback for unauthorized handling
+  protected?: boolean; // Indicates if the request is protected and requires authentication
 }
 
 export async function requestHandler<T>({
@@ -12,6 +16,8 @@ export async function requestHandler<T>({
   url,
   body,
   headers = { "Content-Type": "application/json" },
+  onUnauthorized,
+  protected: isProtected = false,
 }: RequestOptions): Promise<T> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15000); // Timeout after 15 seconds
@@ -19,9 +25,20 @@ export async function requestHandler<T>({
   try {
     const options: RequestInit = {
       method,
-      headers,
+      headers: { ...headers }, // Spread to avoid mutating the original object
       signal: controller.signal,
     };
+
+    // Include the token if the request is protected
+    if (isProtected) {
+      const token = getCookie("token");
+      if (token) {
+        options.headers = {
+          ...options.headers,
+          Authorization: `Bearer ${token}`, // Add Authorization header
+        };
+      }
+    }
 
     if (body) {
       options.body = JSON.stringify(body);
@@ -31,30 +48,37 @@ export async function requestHandler<T>({
     const data = await response.json();
 
     if (response.ok && !data.error) {
-      // If the response is successful and error is false, return the data
       return data;
     } else if (data.error && data.message) {
-      // If error is true and message exists, show the message
-      throw new Error(data.message); // Throw the error to handle it in a unified way
+      if (data.message === "Unauthorized access") {
+        // Handle unauthorized access
+        deleteCookie("token"); // Remove token cookie
+
+        if (onUnauthorized) {
+          onUnauthorized(); // Execute the callback if provided
+        } else if (typeof window !== "undefined") {
+          window.location.href = "/auth/login"; // Redirect to login page
+        }
+
+        throw new Error(
+          "You have been logged out because you are not authorized to access this page."
+        );
+      }
+
+      throw new Error(data.message);
     } else {
-      // Handle other cases where the response is not OK or has no meaningful error message
       throw new Error("Something went wrong. Please try again.");
     }
   } catch (error) {
-    // Handle network errors, timeouts, or unexpected errors
     if ((error as Error).name === "AbortError") {
-      const timeoutMessage = "Request timeout. Please try again.";
-      throw new Error(timeoutMessage);
+      throw new Error("Request timeout. Please try again.");
     }
 
-    // If an error is thrown intentionally with a message, show that message
     if (error instanceof Error && error.message) {
-      throw error; // Re-throw to allow component-specific handling if needed
+      throw error;
     }
 
-    // Generic fallback error
-    const genericError = "An unexpected error occurred. Please try again.";
-    throw new Error(genericError);
+    throw new Error("An unexpected error occurred. Please try again.");
   } finally {
     clearTimeout(timeout);
   }

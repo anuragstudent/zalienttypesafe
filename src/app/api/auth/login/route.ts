@@ -12,12 +12,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         error: false,
         message: "Login successful",
-        user: data,
+        token: "anurag",
       });
     }
 
     return NextResponse.json(
-      { error: true, message: "Invalid credentials" },
+      { error: true, message: "Email or password is incorrect" },
       { status: 401 }
     );
   } catch (error) {

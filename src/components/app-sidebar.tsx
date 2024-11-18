@@ -1,6 +1,17 @@
 "use client";
 
-import * as React from "react";
+import React from "react";
+
+import { NavMain } from "@/components/nav-main";
+import { NavUser } from "@/components/nav-user";
+import { TeamSwitcher } from "@/components/team-switcher";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarRail,
+} from "@/components/ui/sidebar";
 import {
   AudioWaveform,
   BookOpen,
@@ -15,17 +26,7 @@ import {
   SquareTerminal,
 } from "lucide-react";
 
-import { NavMain } from "@/components/nav-main";
-import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarRail,
-} from "@/components/ui/sidebar";
-
+// Sidebar data structure
 const data = {
   sidebar: {
     items: [
@@ -62,11 +63,6 @@ const data = {
       },
     ],
   },
-  user: {
-    name: "Zalient",
-    email: "m@example.com",
-    avatar: "/logo.png",
-  },
   teams: [
     {
       name: "Anurag Subedi",
@@ -86,7 +82,16 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+type User = {
+  name: string;
+  email: string;
+  avatar: string;
+};
+
+export function AppSidebar({
+  user,
+  ...props
+}: { user: User } & React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -99,7 +104,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

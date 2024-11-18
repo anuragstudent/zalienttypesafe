@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -23,6 +22,7 @@ import { loginSchema, LoginData } from "@/shared/validation/auth";
 import { useState } from "react";
 import { requestHandler } from "@/utils/client/requestHandler";
 import { useRouter } from "next/navigation";
+import { setCookie } from "typescript-cookie";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -40,18 +40,33 @@ export default function LoginForm() {
     setIsSubmitting(true);
 
     try {
-      const data = await requestHandler<{ message: string; token?: string }>({
+      const data = await requestHandler<{
+        error: boolean;
+        message: string;
+        token?: string;
+      }>({
         method: "POST",
         url: "/api/auth/login",
         body: values,
       });
 
-      // Show the full response data on success
+      if (!data.error && data.token) {
+        // Save token in cookies
+        setCookie("token", data.token);
 
-      toast.success(JSON.stringify(data, null, 2));
-      router.push("/dashboard");
+        // Optionally save user data in cookies
+
+        // Show a success toast
+        toast.success(data.message);
+
+        // Redirect to the dashboard
+        router.push("/dashboard");
+      } else {
+        // Handle unexpected cases
+        throw new Error(data.message || "Unexpected response format");
+      }
     } catch (error) {
-      // Show the error message in toast
+      // Show the error message in a toast
       toast.error((error as Error).message || "Something went wrong");
     } finally {
       setIsSubmitting(false);
