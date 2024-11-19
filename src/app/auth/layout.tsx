@@ -1,8 +1,13 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, FC } from "react";
+import dynamic from "next/dynamic";
 
-export default function AuthLayout({ children }: { children: ReactNode }) {
+interface AuthLayoutProps {
+  children: ReactNode;
+}
+
+const AuthLayout: FC<AuthLayoutProps> = ({ children }) => {
   return (
     <div className="flex max-h-screen min-h-screen flex-row bg-[--card-background-dark]">
       {/* Left Side: Form Section */}
@@ -14,16 +19,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       <div className="items-center justify-center hidden md:flex md:w-1/2 bg-border/40">
         <div className="relative w-full h-full overflow-hidden rounded-xl">
           {/* Background Video */}
-          <video
-            autoPlay
-            playsInline
-            muted
-            loop
-            preload="auto"
-            className="absolute top-0 left-0 object-cover w-full h-full rounded-xl"
-          >
-            <source src="/home/banner-video.mp4" type="video/mp4" />
-          </video>
+          <LazyBackgroundVideo src="/home/banner-video.mp4" />
           {/* Overlay Content */}
           <div className="relative z-10 flex items-center justify-center h-full">
             <div className="px-4 text-center text-white">
@@ -34,4 +30,32 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       </div>
     </div>
   );
-}
+};
+
+// Lazy-loaded Video Component
+const LazyBackgroundVideo = dynamic<{ src: string }>(
+  async () => {
+    const VideoComponent: FC<{ src: string }> = ({ src }) => (
+      <video
+        autoPlay
+        playsInline
+        muted
+        loop
+        preload="metadata"
+        className="absolute top-0 left-0 object-cover w-full h-full rounded-xl"
+      >
+        <source src={src} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    );
+
+    VideoComponent.displayName = "LazyBackgroundVideo"; // Adding a display name
+    return VideoComponent;
+  },
+  { ssr: false } // Prevent server-side rendering
+);
+
+// Set a display name for the main component to avoid ESLint warnings
+AuthLayout.displayName = "AuthLayout";
+
+export default AuthLayout;
