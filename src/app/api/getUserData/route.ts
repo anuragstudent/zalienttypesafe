@@ -5,6 +5,7 @@ export async function GET() {
   const user = {
     name: "Anurag Subedi",
     email: "anuragsubedi180@gmail.com",
+    verified: false,
     avatar: "/logo.png",
   };
 
