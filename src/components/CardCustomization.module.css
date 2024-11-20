@@ -1,0 +1,162 @@
+/* components/CardCustomization.module.css */
+
+.cardPreviewContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.cardContainer {
+  perspective: 1000px;
+  width: 336px; /* 3.5 inches */
+  height: 192px; /* 2 inches */
+  margin: auto;
+}
+
+.cardContainer:hover .card {
+  transform: rotateY(180deg);
+}
+
+.cardContainer.disableHover:hover .card {
+  transform: none; /* Disable hover flip when disableHover is true */
+}
+
+.isFlipped .card {
+  transform: rotateY(180deg);
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s; /* Apply transition here */
+}
+
+.cardFace {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.cardFaceBack {
+  transform: rotateY(180deg);
+}
+
+.cardContent {
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  background: linear-gradient(
+    135deg,
+    #1a1a1a 0%,
+    #000000 100%
+  ); /* Darker metallic background */
+  position: relative;
+  color: white;
+  font-family: "Poppins", sans-serif;
+}
+
+.cardContent::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, 0.05),
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.downloading .cardContent {
+  background: #000 !important; /* Remove gradient */
+}
+
+.downloading .cardContent::after {
+  content: none; /* Remove overlay */
+}
+
+.qrCode {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 1;
+}
+
+.brandLogo {
+  margin-bottom: 8px;
+  z-index: 0;
+}
+
+.brandName {
+  font-size: 20px; /* Adjusted font size */
+  font-weight: bold;
+  margin-bottom: 4px;
+  font-family: "Pacifico", cursive; /* Apply cursive font */
+  color: #ffffff;
+  text-align: left; /* Left-aligned */
+}
+
+.contactInfo {
+  font-size: 12px;
+  margin-bottom: 2px;
+  text-align: left; /* Left-aligned */
+}
+
+.logoImage {
+  filter: grayscale(100%) brightness(200%);
+}
+
+.swapButton {
+  margin-top: 8px;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .cardContainer:hover .card {
+    transform: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .cardContainer {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    transform: scale(0.9);
+  }
+
+  .card {
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  }
+
+  .cardFace {
+    height: 100%;
+  }
+
+  .cardContent {
+    padding: 12px;
+  }
+
+  .qrCode {
+    bottom: 12px;
+    right: 12px;
+  }
+
+  .brandName {
+    font-size: 18px;
+  }
+
+  .contactInfo {
+    font-size: 11px;
+  }
+}
