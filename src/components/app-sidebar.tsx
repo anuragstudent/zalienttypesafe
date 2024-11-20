@@ -25,6 +25,7 @@ import {
   Settings2Icon,
   SquareTerminal,
 } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 // Sidebar data structure
 const data = {
@@ -92,6 +93,7 @@ export function AppSidebar({
   user,
   ...props
 }: { user: User } & React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -100,7 +102,9 @@ export function AppSidebar({
       <SidebarContent>
         <NavMain
           items={data.sidebar.items}
-          currentPageUrl={"/dashboard/overview"}
+          currentPageUrl={
+            pathname == "/dashboard" ? "/dashboard/overview" : pathname
+          }
         />
       </SidebarContent>
       <SidebarFooter>

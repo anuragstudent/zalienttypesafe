@@ -1,8 +1,7 @@
-// app/dashboard/(verified)/layout.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { requestHandler } from "@/utils/client/requestHandler";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -37,6 +36,7 @@ export default function VerifiedLayout({
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     async function fetchUserData() {
@@ -70,9 +70,33 @@ export default function VerifiedLayout({
   }
 
   if (!user || !user.verified) {
-    // The user is unverified or not logged in; we can return null as they will be redirected
     return null;
   }
+
+  // Generate breadcrumbs based on pathname
+  const pathSegments = pathname.split("/").filter((segment) => segment); // Remove empty segments
+
+  const breadcrumbs = pathSegments.map((segment, index) => {
+    const href = "/" + pathSegments.slice(0, index + 1).join("/");
+    const isLast = index === pathSegments.length - 1;
+
+    return (
+      <React.Fragment key={href}>
+        <BreadcrumbItem>
+          {isLast ? (
+            <BreadcrumbPage>
+              {segment.charAt(0).toUpperCase() + segment.slice(1)}
+            </BreadcrumbPage>
+          ) : (
+            <BreadcrumbLink href={href}>
+              {segment.charAt(0).toUpperCase() + segment.slice(1)}
+            </BreadcrumbLink>
+          )}
+        </BreadcrumbItem>
+        {!isLast && <BreadcrumbSeparator />}
+      </React.Fragment>
+    );
+  });
 
   return (
     <SidebarProvider>
@@ -83,18 +107,7 @@ export default function VerifiedLayout({
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
             <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                    {/* Adjust breadcrumb as needed */}
-                    Dashboard
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>{/* Current Page */}</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
+              <BreadcrumbList>{breadcrumbs}</BreadcrumbList>
             </Breadcrumb>
           </div>
         </header>

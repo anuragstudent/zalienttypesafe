@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import ImageUpload from "@/components/image-upload";
+// import ImageUpload from "@/components/image-upload";
 import { OnboardingData } from "@/shared/validation/auth";
-import { useForm, Controller, FormProvider } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { requestHandler } from "@/utils/client/requestHandler";
 
 // Import the Nepal location data
@@ -64,7 +64,6 @@ export default function OnboardingPage() {
   });
 
   const {
-    control,
     register,
     setValue,
     watch,
@@ -255,26 +254,7 @@ export default function OnboardingPage() {
                   </p>
                 )}
               </div>
-              <div>
-                <Label>Upload Photo</Label>
-                <Controller
-                  name="photo"
-                  control={control}
-                  render={({ field }) => (
-                    <ImageUpload
-                      onUploadComplete={(url: string | null) =>
-                        field.onChange(url)
-                      }
-                      initialImage={field.value}
-                    />
-                  )}
-                />
-                {errors.photo && (
-                  <p className="text-destructive text-sm mt-1">
-                    {errors.photo.message}
-                  </p>
-                )}
-              </div>
+
               <div className="flex justify-between mt-6">
                 <div />
                 <Button onClick={handleNextStep}>Next</Button>
