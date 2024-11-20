@@ -1,6 +1,7 @@
 import { deleteCookie, getCookie } from "cookies-next"; // Assuming cookies-next for cookie management
 
 type RequestMethod = "GET" | "POST" | "PATCH" | "DELETE";
+type ResponseType = "json" | "blob";
 
 export interface RequestOptions {
   method: RequestMethod;
@@ -9,6 +10,7 @@ export interface RequestOptions {
   headers?: HeadersInit;
   onUnauthorized?: () => void; // Callback for unauthorized handling
   protected?: boolean; // Indicates if the request is protected and requires authentication
+  responseType?: ResponseType; // Specify the response type (json or blob)
 }
 
 export async function requestHandler<T>({
@@ -18,6 +20,7 @@ export async function requestHandler<T>({
   headers = { "Content-Type": "application/json" },
   onUnauthorized,
   protected: isProtected = false,
+  responseType = "json", // Default response type is json
 }: RequestOptions): Promise<T> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15000); // Timeout after 15 seconds
@@ -45,6 +48,15 @@ export async function requestHandler<T>({
     }
 
     const response = await fetch(url, options);
+
+    // Handle response based on responseType
+    if (responseType === "blob") {
+      if (response.ok) {
+        return (await response.blob()) as unknown as T;
+      }
+      throw new Error("Failed to fetch blob data.");
+    }
+
     const data = await response.json();
 
     if (response.ok && !data.error) {

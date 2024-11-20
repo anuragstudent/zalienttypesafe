@@ -1,60 +1,63 @@
 "use client";
-
-import React, { useState, useEffect, useRef } from "react";
-import { QRCodeCanvas } from "qrcode.react";
-import { toPng } from "html-to-image";
-import JSZip from "jszip";
 import { saveAs } from "file-saver";
+
+import React, { useState, useEffect } from "react";
 import styles from "./CardCustomization.module.css";
-import Head from "next/head";
 import { RefreshCw } from "lucide-react";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { requestHandler } from "@/utils/client/requestHandler"; // Adjust the import path as needed
+
+// Import fonts using next/font/google
+import { Poppins, Pacifico } from "next/font/google";
+
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "700"] });
+const pacifico = Pacifico({ subsets: ["latin"], weight: ["400"] });
 
 export default function CardCustomization() {
   const [brandName, setBrandName] = useState<string>("Your Brand Name");
   const [contactNumber, setContactNumber] = useState<string>("");
   const [address, setAddress] = useState<string>("");
-  const [frontLogo, setFrontLogo] = useState<string | null>(null);
-  const [backLogo, setBackLogo] = useState<string | null>(null);
+
+  const [frontLogoFile, setFrontLogoFile] = useState<File | null>(null);
+  const [backLogoFile, setBackLogoFile] = useState<File | null>(null);
+
+  const [frontLogoDataURL, setFrontLogoDataURL] = useState<string | null>(null);
+  const [backLogoDataURL, setBackLogoDataURL] = useState<string | null>(null);
+
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
   const [disableHover, setDisableHover] = useState<boolean>(false);
   const [downloading, setDownloading] = useState<boolean>(false);
 
   const isMobile = useMediaQuery("(max-width: 767px)");
 
-  const frontRef = useRef<HTMLDivElement | null>(null);
-  const backRef = useRef<HTMLDivElement | null>(null);
-
-  const convertToBase64 = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
-    });
-
-  const handleFrontLogoUpload = async (
+  const handleFrontLogoUpload = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (event.target.files && event.target.files[0]) {
-      const base64Image = await convertToBase64(event.target.files[0]);
-      setFrontLogo(base64Image);
+      const file = event.target.files[0];
+      setFrontLogoFile(file);
+
+      const objectUrl = URL.createObjectURL(file);
+      setFrontLogoDataURL(objectUrl);
     } else {
-      setFrontLogo(null);
+      setFrontLogoFile(null);
+      setFrontLogoDataURL(null);
     }
   };
 
-  const handleBackLogoUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleBackLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
-      const base64Image = await convertToBase64(event.target.files[0]);
-      setBackLogo(base64Image);
+      const file = event.target.files[0];
+      setBackLogoFile(file);
+
+      const objectUrl = URL.createObjectURL(file);
+      setBackLogoDataURL(objectUrl);
     } else {
-      setBackLogo(null);
+      setBackLogoFile(null);
+      setBackLogoDataURL(null);
     }
   };
 
@@ -65,7 +68,7 @@ export default function CardCustomization() {
   };
 
   useEffect(() => {
-    if (backLogo) {
+    if (backLogoDataURL) {
       setIsFlipped(true);
       setDisableHover(true);
       const timer = setTimeout(() => {
@@ -74,53 +77,64 @@ export default function CardCustomization() {
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [backLogo]);
+  }, [backLogoDataURL]);
 
   const handleDownload = async () => {
-    if (frontRef.current && backRef.current) {
-      try {
-        setDisableHover(true);
-        setDownloading(true); // Apply plain black background
+    try {
+      setDisableHover(true);
+      setDownloading(true); // Apply plain black background
 
-        // Generate images
-        const frontDataUrl = await toPng(frontRef.current, {
-          cacheBust: true,
-          width: frontRef.current.offsetWidth,
-          height: frontRef.current.offsetHeight,
+      // Convert image files to base64 data URLs
+      const getBase64 = (file: File) => {
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () =>
+            reject(new Error("Failed to convert image to base64"));
+          reader.readAsDataURL(file);
         });
+      };
 
-        const backDataUrl = await toPng(backRef.current, {
-          cacheBust: true,
-          width: backRef.current.offsetWidth,
-          height: backRef.current.offsetHeight,
-        });
+      const frontLogoBase64 = frontLogoFile
+        ? await getBase64(frontLogoFile)
+        : null;
+      const backLogoBase64 = backLogoFile
+        ? await getBase64(backLogoFile)
+        : null;
 
-        // Create a zip file
-        const zip = new JSZip();
-        zip.file("card-front.png", frontDataUrl.split(",")[1], {
-          base64: true,
-        });
-        zip.file("card-back.png", backDataUrl.split(",")[1], { base64: true });
+      const payload = {
+        brandName,
+        contactNumber: formattedNumber,
+        address,
+        frontLogoBase64,
+        backLogoBase64,
+      };
 
-        const zipBlob = await zip.generateAsync({ type: "blob" });
-        saveAs(zipBlob, "card-images.zip");
-      } catch (error) {
-        console.error("Error generating images:", error);
-      } finally {
-        setDownloading(false);
-      }
+      // Use the requestHandler to make the POST request
+      const response = await requestHandler<Blob>({
+        method: "POST",
+        url: "/api/generate-card",
+        body: payload,
+        headers: { "Content-Type": "application/json" },
+        responseType: "blob",
+        protected: true,
+      });
+
+      // Save the received ZIP file
+      saveAs(response, "card-images.zip");
+    } catch (error) {
+      console.error("Error generating images:", error);
+      // Handle errors (e.g., show a notification to the user)
+    } finally {
+      setDownloading(false);
+      setDisableHover(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-4">
-      <Head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Poppins&family=Pacifico&display=swap"
-          rel="stylesheet"
-        />
-      </Head>
+    <div
+      className={`flex flex-col items-center justify-center p-4 ${poppins.className}`}
+    >
       <h1 className="text-2xl font-bold mb-4">Customize Your Card</h1>
       <div
         className={`flex ${
@@ -187,7 +201,7 @@ export default function CardCustomization() {
             />
           </div>
           <Button onClick={handleDownload} className="mt-4">
-            Download Card Images
+            {downloading ? "Preparing Download..." : "Download Card Images"}
           </Button>
         </div>
         <div className={styles.cardPreviewContainer}>
@@ -201,33 +215,30 @@ export default function CardCustomization() {
                 downloading ? styles.downloading : ""
               }`}
             >
-              <div
-                ref={frontRef}
-                className={`${styles.cardFace} ${styles.cardFaceFront}`}
-              >
-                <div className={styles.cardContent}>
+              <div className={`${styles.cardFace} ${styles.cardFaceFront}`}>
+                <div className={`${styles.cardContent}`}>
                   <div className={styles.qrCode}>
-                    <QRCodeCanvas
-                      value={`https://zalient.me/username`}
-                      size={48}
-                      bgColor="#ffffff"
-                      fgColor="#000000"
-                      level="H"
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=${encodeURIComponent(
+                        "https://zalient.me/username"
+                      )}`}
+                      alt="QR Code"
                     />
                   </div>
-                  {frontLogo && (
+                  {frontLogoDataURL && (
                     <div className={styles.brandLogo}>
                       <img
-                        src={frontLogo}
+                        src={frontLogoDataURL}
                         alt="Front Logo"
-                        className={`${styles.logoImage} object-contain w-16 h-16`}
+                        className={`${styles.logoImage} frontLogo object-contain w-16 h-16`}
+                        style={{ filter: "brightness(0) invert(1)" }}
                       />
                     </div>
                   )}
                   <h2
-                    className={styles.brandName}
+                    className={`${styles.brandName} ${pacifico.className}`}
                     style={{
-                      marginTop: frontLogo ? "8px" : "24px",
+                      marginTop: frontLogoDataURL ? "8px" : "24px",
                     }}
                   >
                     {brandName}
@@ -238,17 +249,15 @@ export default function CardCustomization() {
                   {address && <p className={styles.contactInfo}>{address}</p>}
                 </div>
               </div>
-              <div
-                ref={backRef}
-                className={`${styles.cardFace} ${styles.cardFaceBack}`}
-              >
-                <div className={styles.cardContent}>
-                  {backLogo && (
+              <div className={`${styles.cardFace} ${styles.cardFaceBack}`}>
+                <div className={`${styles.cardContent}`}>
+                  {backLogoDataURL && (
                     <div className="flex items-center justify-center h-full">
                       <img
-                        src={backLogo}
+                        src={backLogoDataURL}
                         alt="Back Logo"
-                        className={`${styles.logoImage} object-contain w-32 h-32 opacity-75`}
+                        className={`${styles.logoImage} backLogo object-contain w-32 h-32 opacity-75`}
+                        style={{ filter: "brightness(0) invert(1)" }}
                       />
                     </div>
                   )}

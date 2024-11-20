@@ -59,7 +59,6 @@
   ); /* Darker metallic background */
   position: relative;
   color: white;
-  font-family: "Poppins", sans-serif;
 }
 
 .cardContent::after {
@@ -77,6 +76,7 @@
   mix-blend-mode: screen;
   pointer-events: none;
 }
+
 .downloading .cardContent {
   background: #000 !important; /* Remove gradient */
 }
@@ -101,7 +101,6 @@
   font-size: 20px; /* Adjusted font size */
   font-weight: bold;
   margin-bottom: 4px;
-  font-family: "Pacifico", cursive; /* Apply cursive font */
   color: #ffffff;
   text-align: left; /* Left-aligned */
 }
@@ -110,10 +109,11 @@
   font-size: 12px;
   margin-bottom: 2px;
   text-align: left; /* Left-aligned */
+  color: #ffffff; /* Ensure text is white */
 }
 
 .logoImage {
-  filter: grayscale(100%) brightness(200%);
+  /* filter: grayscale(100%) brightness(200%); */
 }
 
 .swapButton {
