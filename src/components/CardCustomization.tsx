@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { toPng } from "html-to-image";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 import styles from "./CardCustomization.module.css";
 import Head from "next/head";
 import { RefreshCw } from "lucide-react";
@@ -69,7 +71,7 @@ export default function CardCustomization() {
       const timer = setTimeout(() => {
         setIsFlipped(false);
         setDisableHover(false);
-      }, 5000);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [backLogo]);
@@ -80,45 +82,32 @@ export default function CardCustomization() {
         setDisableHover(true);
         setDownloading(true); // Apply plain black background
 
-        // Capture front side
+        // Generate images
         const frontDataUrl = await toPng(frontRef.current, {
           cacheBust: true,
           width: frontRef.current.offsetWidth,
           height: frontRef.current.offsetHeight,
         });
 
-        // Flip to back side
-        setIsFlipped(true);
-
-        // Wait for the flip animation
-        await new Promise((resolve) => setTimeout(resolve, 600));
-
-        // Capture back side
         const backDataUrl = await toPng(backRef.current, {
           cacheBust: true,
           width: backRef.current.offsetWidth,
           height: backRef.current.offsetHeight,
         });
 
-        setIsFlipped(false);
-        setDisableHover(false);
+        // Create a zip file
+        const zip = new JSZip();
+        zip.file("card-front.png", frontDataUrl.split(",")[1], {
+          base64: true,
+        });
+        zip.file("card-back.png", backDataUrl.split(",")[1], { base64: true });
 
-        // Download images
-        const link = document.createElement("a");
-
-        // Download front side
-        link.download = "card-front.png";
-        link.href = frontDataUrl;
-        link.click();
-
-        // Download back side
-        link.download = "card-back.png";
-        link.href = backDataUrl;
-        link.click();
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        saveAs(zipBlob, "card-images.zip");
       } catch (error) {
         console.error("Error generating images:", error);
       } finally {
-        setDownloading(false); // Restore styles after download
+        setDownloading(false);
       }
     }
   };
