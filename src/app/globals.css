@@ -124,6 +124,6 @@
   body {
     @apply bg-background text-foreground;
     line-height: initial !important;
-    letter-spacing: -0.025em;
+    letter-spacing: 0.01px;
   }
 }
