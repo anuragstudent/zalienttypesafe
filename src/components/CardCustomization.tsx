@@ -293,7 +293,7 @@ export default function CardCustomization() {
               htmlFor="frontLogo"
               className="font-semibold text-muted-foreground"
             >
-              Upload Front Logo (Black & White):
+              Upload Front Logo:
             </Label>
             <Input
               id="frontLogo"
@@ -310,7 +310,7 @@ export default function CardCustomization() {
               htmlFor="backLogo"
               className="font-semibold text-muted-foreground"
             >
-              Upload Back Logo (White):
+              Upload Back Logo :
             </Label>
             <Input
               id="backLogo"
