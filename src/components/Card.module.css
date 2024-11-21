@@ -1,10 +1,12 @@
 /* components/Card.module.css */
-
+body {
+  line-height: initial !important;
+  letter-spacing: -0.025em;
+}
 .cardContainer {
   perspective: 1000px;
-  width: 336px; /* 3.5 inches */
-  height: 192px; /* 2 inches */
-  margin: auto;
+  max-width: 336px; /* 3.5 inches */
+  max-height: 192px; /* 2 inches */
 }
 
 .cardContainer:hover .card {
@@ -46,11 +48,13 @@
 }
 
 .downloadBackground {
-  background: #111 !important; /* Pure darker background */
+  background: #000 !important; /* Pure darker background */
+  border-radius: 0 !important; /* Remove border-radius */
 }
 
 .downloadBackground .cardContent {
-  background: #111 !important; /* Pure darker background for cardContent */
+  background: #000 !important; /* Pure darker background for cardContent */
+  border-radius: 0 !important; /* Remove border-radius */
 }
 
 .downloadBackground .cardContent::after {
@@ -60,7 +64,6 @@
 .cardContent {
   width: 100%;
   height: 100%;
-  padding: 16px;
   background: linear-gradient(
     135deg,
     #1a1a1a 0%,
@@ -68,6 +71,10 @@
   ); /* Darker metallic background */
   position: relative;
   color: white;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .cardContent::after {
@@ -91,7 +98,7 @@
 }
 
 .downloading .cardContent::after {
-  content: none; /* Remove overlay */
+  content: none !important; /* Remove overlay */
 }
 
 .qrCode {
@@ -126,45 +133,10 @@
 }
 
 .swapButton {
-  margin-top: 8px;
 }
 
 @media (hover: none) and (pointer: coarse) {
   .cardContainer:hover .card {
     transform: none;
-  }
-}
-
-@media (max-width: 767px) {
-  .cardContainer {
-    width: 100%;
-    height: auto;
-    transform: scale(0.9);
-  }
-
-  .card {
-    height: 0;
-    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-  }
-
-  .cardFace {
-    height: 100%;
-  }
-
-  .cardContent {
-    padding: 12px;
-  }
-
-  .qrCode {
-    bottom: 12px;
-    right: 12px;
-  }
-
-  .brandName {
-    font-size: 18px;
-  }
-
-  .contactInfo {
-    font-size: 11px;
   }
 }
