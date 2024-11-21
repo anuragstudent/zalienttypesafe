@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Poppins } from "next/font/google";
+import { toast } from "sonner";
 import Card from "./Card";
 import { useUser } from "@/context/UserContext";
 import html2canvas from "html2canvas";
@@ -74,14 +75,6 @@ export default function CardCustomization() {
       try {
         const base64 = await convertToBase64(file);
         setBackLogoDataURL(base64);
-
-        setIsFlipped(true);
-        setDisableHover(true);
-
-        setTimeout(() => {
-          setIsFlipped(false);
-          setDisableHover(false);
-        }, 3000);
       } catch (error) {
         console.error("Error converting back logo to base64:", error);
       }
@@ -111,91 +104,78 @@ export default function CardCustomization() {
     setIsFlipped(!isFlipped);
   };
 
-  const handleUploadFront = async () => {
-    if (frontCardRef.current) {
-      try {
-        setUploading(true);
-        setUploadMessage("");
-
-        frontCardRef.current.classList.add(styles.downloadBackground);
-
-        await document.fonts.ready;
-
-        const canvas = await html2canvas(frontCardRef.current, {
-          scale: 4,
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          backgroundColor: null,
-        });
-        const dataUrl = canvas.toDataURL("image/png");
-
-        const result = await requestHandler<{ url: string }>({
-          method: "POST",
-          url: "/api/uploadCard",
-          body: { image: dataUrl, type: "front" },
-          protected: true,
-        });
-
-        setUploadMessage(
-          `Front card uploaded successfully! URL: ${result.url}`
-        );
-
-        frontCardRef.current.classList.remove(styles.downloadBackground);
-      } catch (error) {
-        console.error(
-          "Error uploading front card:",
-          (error as Error).message || error
-        );
-        setUploadMessage(
-          `Error uploading front card: ${(error as Error).message || error}`
-        );
-      } finally {
-        setUploading(false);
-      }
+  // Unified upload handler
+  const handleUploadAll = async () => {
+    if (!frontLogoDataURL || !backLogoDataURL) {
+      setUploadMessage("Please upload both front and back logos.");
+      return;
     }
-  };
 
-  const handleUploadBack = async () => {
-    if (backCardRef.current) {
-      try {
-        setUploading(true);
-        setUploadMessage("");
+    try {
+      setUploading(true);
+      setUploadMessage("");
 
-        backCardRef.current.classList.add(styles.downloadBackground);
+      // Temporarily disable flipping to ensure correct capture
+      setIsFlipped(false);
+      setDisableHover(true);
 
-        await document.fonts.ready;
+      // Wait for the state to update
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
-        const canvas = await html2canvas(backCardRef.current, {
-          scale: 4,
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          backgroundColor: null,
-        });
-        const dataUrl = canvas.toDataURL("image/png");
+      // Capture front card
+      frontCardRef.current?.classList.add(styles.downloadBackground);
+      await document.fonts.ready;
+      const frontCanvas = await html2canvas(frontCardRef.current!, {
+        scale: 4,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: null,
+      });
+      const frontDataUrl = frontCanvas.toDataURL("image/png");
+      frontCardRef.current?.classList.remove(styles.downloadBackground);
 
-        const result = await requestHandler<{ url: string }>({
-          method: "POST",
-          url: "/api/uploadCard",
-          body: { image: dataUrl, type: "back" },
-          protected: true,
-        });
+      // Capture back card
+      backCardRef.current?.classList.add(styles.downloadBackground);
+      await document.fonts.ready;
+      const backCanvas = await html2canvas(backCardRef.current!, {
+        scale: 4,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: null,
+      });
+      const backDataUrl = backCanvas.toDataURL("image/png");
+      backCardRef.current?.classList.remove(styles.downloadBackground);
 
-        setUploadMessage(`Back card uploaded successfully! URL: ${result.url}`);
+      // Re-enable flipping if it was disabled
+      setDisableHover(false);
 
-        backCardRef.current.classList.remove(styles.downloadBackground);
-      } catch (error) {
-        console.error(
-          "Error uploading back card:",
-          (error as Error).message || error
-        );
-        setUploadMessage(
-          `Error uploading back card: ${(error as Error).message || error}`
-        );
-      } finally {
-        setUploading(false);
-      }
+      // Prepare payload
+      const payload = {
+        frontImage: frontDataUrl,
+        backImage: backDataUrl,
+        fullName,
+        role,
+        contactNumber,
+        email,
+        website,
+        address,
+      };
+
+      // Send request
+      const result = await requestHandler<{ message: string }>({
+        method: "POST",
+        url: "/api/uploadCard",
+        body: payload,
+        protected: true,
+      });
+
+      toast.success(result.message);
+    } catch (error) {
+      toast.error((error as Error).message || "Something went wrong");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -321,24 +301,14 @@ export default function CardCustomization() {
             />
           </div>
 
-          {/* Upload Buttons */}
+          {/* Upload Button */}
           <div className="flex flex-col">
-            {/* Upload Front Side */}
             <Button
-              onClick={handleUploadFront}
+              onClick={handleUploadAll}
               className="mt-4"
               disabled={uploading}
             >
-              {uploading ? "Uploading Front Card..." : "Upload Front Card"}
-            </Button>
-
-            {/* Upload Back Side */}
-            <Button
-              onClick={handleUploadBack}
-              className="mt-2"
-              disabled={uploading}
-            >
-              {uploading ? "Uploading Back Card..." : "Upload Back Card"}
+              {uploading ? "Uploading..." : "Upload Cards"}
             </Button>
           </div>
 
@@ -351,7 +321,7 @@ export default function CardCustomization() {
         </div>
 
         {/* Card Preview Section */}
-        <div className="flex flex-col  w-full">
+        <div className="flex flex-col w-full">
           <Card
             frontRef={frontCardRef}
             backRef={backCardRef}

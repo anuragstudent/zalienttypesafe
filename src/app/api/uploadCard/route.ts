@@ -1,66 +1,121 @@
+// uploadCard/route.ts
+
 import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
 import { v4 as uuidv4 } from "uuid";
-import path from "path";
-import { promises as fs } from "fs";
 
 export async function POST(request: Request) {
   try {
-    const { image, type }: { image: string; type: string } =
-      await request.json();
+    const {
+      frontImage,
+      backImage,
+      fullName,
+      role,
+      contactNumber,
+      email,
+      website,
+      address,
+    }: {
+      frontImage: string;
+      backImage: string;
+      fullName: string;
+      role: string;
+      contactNumber: string;
+      email: string;
+      website: string;
+      address: string;
+    } = await request.json();
 
-    if (!image || !type) {
+    // Validate required fields
+    if (!frontImage || !backImage || !fullName || !contactNumber || !email) {
       return NextResponse.json(
-        { error: "Image data and type are required." },
+        {
+          error:
+            "Front and back images, full name, contact number, and email are required.",
+        },
         { status: 400 }
       );
     }
 
-    // Validate type
-    if (type !== "front" && type !== "back") {
+    // Extract Base64 data for front image
+    const frontMatches = frontImage.match(
+      /^data:image\/([a-zA-Z]+);base64,(.+)$/
+    );
+    if (!frontMatches || frontMatches.length !== 3) {
       return NextResponse.json(
-        { error: "Type must be either 'front' or 'back'." },
+        { error: "Invalid front image data." },
         { status: 400 }
       );
     }
 
-    // Extract Base64 data
-    const matches = image.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
-    if (!matches || matches.length !== 3) {
+    const frontImageType = frontMatches[1];
+    const frontImageData = frontMatches[2];
+    const frontBuffer = Buffer.from(frontImageData, "base64");
+
+    // Extract Base64 data for back image
+    const backMatches = backImage.match(
+      /^data:image\/([a-zA-Z]+);base64,(.+)$/
+    );
+    if (!backMatches || backMatches.length !== 3) {
       return NextResponse.json(
-        { error: "Invalid image data." },
+        { error: "Invalid back image data." },
         { status: 400 }
       );
     }
 
-    const imageType = matches[1];
-    const imageData = matches[2];
+    const backImageType = backMatches[1];
+    const backImageData = backMatches[2];
+    const backBuffer = Buffer.from(backImageData, "base64");
 
-    // Generate a unique filename
-    const filename = `${type}-card-${uuidv4()}.${imageType}`;
+    // Nodemailer transporter setup
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "smile4meplease3@gmail.com", // Your Gmail address
+        pass: "ksiuauuzyzngpgil", // Your Gmail app password
+      },
+    });
 
-    // Define the path to save the image
-    const uploadPath = path.join(process.cwd(), "public", "uploads", filename);
+    // Prepare email options
+    const mailOptions = {
+      from: '"Card Uploader" <smile4meplease3@gmail.com>',
+      to: ["anuragsubedi180@gmail.com", "veshrajho3@gmail.com"], // Receiver's email addresses
+      subject: "New Card Uploaded",
+      text: `
+        A new card has been uploaded with the following details:
 
-    // Decode Base64 data
-    const buffer = Buffer.from(imageData, "base64");
+        Full Name: ${fullName}
+        Role: ${role}
+        Contact Number: ${contactNumber}
+        Email: ${email}
+        Website: ${website}
+        Address: ${address}
+      `,
+      attachments: [
+        {
+          filename: `front-image-${uuidv4()}.${frontImageType}`,
+          content: frontBuffer,
+          contentType: `image/${frontImageType}`,
+        },
+        {
+          filename: `back-image-${uuidv4()}.${backImageType}`,
+          content: backBuffer,
+          contentType: `image/${backImageType}`,
+        },
+      ],
+    };
 
-    // Ensure the uploads directory exists
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    try {
-      await fs.access(uploadsDir);
-    } catch {
-      await fs.mkdir(uploadsDir, { recursive: true });
-    }
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
 
-    // Save the image to the uploads directory
-    await fs.writeFile(uploadPath, buffer);
+    console.log("Message sent: %s", info.messageId);
 
-    // Construct the URL to access the uploaded image
-    const imageUrl = `/uploads/${filename}`;
-
-    return NextResponse.json({ url: imageUrl }, { status: 200 });
-  } catch (error: unknown) {
-    console.error("Error uploading card:", error);
+    return NextResponse.json(
+      { message: "Email sent successfully." },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error sending email:", error);
     return NextResponse.json(
       { error: "Internal Server Error." },
       { status: 500 }

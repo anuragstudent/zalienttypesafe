@@ -61,6 +61,7 @@
     "next-nprogress-bar": "^2.3.15",
     "next-themes": "^0.4.3",
     "node-html-to-image": "^5.0.0",
+    "nodemailer": "^6.9.16",
     "puppeteer": "^23.8.0",
     "puppeteer-core": "^23.8.0",
     "qrcode.react": "^4.1.0",
@@ -79,6 +80,7 @@
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "typescript-cookie": "^1.0.6",
+    "uploadthing": "^7.3.0",
     "uuid": "^11.0.3",
     "vaul": "^1.1.1",
     "zod": "^3.23.8"
@@ -86,6 +88,7 @@
   "devDependencies": {
     "@types/file-saver": "^2.0.7",
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.17",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
