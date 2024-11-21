@@ -24,6 +24,7 @@ import { UserProvider, useUser } from "@/context/UserContext";
 
 type User = {
   name: string;
+  address: string;
   email: string;
   contact: number;
   avatar: string;

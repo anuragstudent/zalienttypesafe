@@ -8,6 +8,7 @@ export async function GET() {
   const user = {
     username: "anurag",
     name: "Anurag Subedi",
+    address: "Deumai-4, Ilam",
     email: "anuragsubedi180@gmail.com",
     contact: "9816957955",
     verified: true,

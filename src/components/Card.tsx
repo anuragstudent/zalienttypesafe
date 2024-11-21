@@ -86,7 +86,16 @@ const Card: React.FC<CardProps> = ({
                   </p>
                 )}
               </span>
-
+              {address && (
+                <div className="flex items-center text-[8px] mb-0.5 text-left">
+                  <img
+                    src="/nfc/location.png"
+                    alt="Location Icon"
+                    className="w-3 h-3 mr-1"
+                  />
+                  <span>{address}</span>
+                </div>
+              )}
               {/* Contact Number */}
               {formattedNumber && (
                 <div className="flex items-center text-[8px] mb-0.5 text-left">
@@ -121,16 +130,6 @@ const Card: React.FC<CardProps> = ({
                 </div>
               )}
               {/* Address */}
-              {address && (
-                <div className="flex items-center text-[8px] mb-0.5 text-left">
-                  <img
-                    src="/nfc/location.png"
-                    alt="Location Icon"
-                    className="w-3 h-3 mr-1"
-                  />
-                  <span>{address}</span>
-                </div>
-              )}
             </div>
           </div>
         </div>

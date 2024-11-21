@@ -7,6 +7,7 @@ type User = {
   name: string;
   email: string;
   contact: number;
+  address: string;
   avatar: string;
   verified: boolean;
 };

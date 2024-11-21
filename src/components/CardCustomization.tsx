@@ -45,7 +45,7 @@ export default function CardCustomization() {
       setContactNumber(user.contact?.toString() || ""); // Map `contact`
       setEmail(user.email || ""); // Map `email`
       setWebsite(""); // No website in the user data
-      setAddress(""); // No address in the user data
+      setAddress(user.address || ""); // No address in the user data
     }
   }, [user]);
 
