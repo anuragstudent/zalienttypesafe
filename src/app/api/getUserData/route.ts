@@ -9,6 +9,7 @@ export async function GET() {
     username: "anurag",
     name: "Anurag Subedi",
     email: "anuragsubedi180@gmail.com",
+    contact: "9816957955",
     verified: true,
     avatar: "/logo.png",
   };

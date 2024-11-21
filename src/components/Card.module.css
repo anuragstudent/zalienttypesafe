@@ -1,11 +1,4 @@
-/* components/CardCustomization.module.css */
-
-.cardPreviewContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
+/* components/Card.module.css */
 
 .cardContainer {
   perspective: 1000px;
@@ -18,12 +11,8 @@
   transform: rotateY(180deg);
 }
 
-.cardContainer.disableHover:hover .card {
+.disableHover:hover .card {
   transform: none; /* Disable hover flip when disableHover is true */
-}
-
-.isFlipped .card {
-  transform: rotateY(180deg);
 }
 
 .card {
@@ -32,6 +21,10 @@
   height: 100%;
   transform-style: preserve-3d;
   transition: transform 0.6s; /* Apply transition here */
+}
+
+.isFlipped {
+  transform: rotateY(180deg);
 }
 
 .cardFace {
@@ -129,7 +122,6 @@
 @media (max-width: 767px) {
   .cardContainer {
     width: 100%;
-    max-width: 280px;
     height: auto;
     transform: scale(0.9);
   }

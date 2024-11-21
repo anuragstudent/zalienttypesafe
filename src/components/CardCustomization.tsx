@@ -1,37 +1,53 @@
 "use client";
 import { saveAs } from "file-saver";
-
 import React, { useState, useEffect } from "react";
-import styles from "./CardCustomization.module.css";
 import { RefreshCw } from "lucide-react";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Poppins } from "next/font/google";
+import Card from "./Card";
+import { useUser } from "@/context/UserContext"; // Import useUser hook
 import { requestHandler } from "@/utils/client/requestHandler"; // Adjust the import path as needed
 
-// Import fonts using next/font/google
-import { Poppins, Pacifico } from "next/font/google";
-
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "700"] });
-const pacifico = Pacifico({ subsets: ["latin"], weight: ["400"] });
 
 export default function CardCustomization() {
-  const [brandName, setBrandName] = useState<string>("Your Brand Name");
-  const [contactNumber, setContactNumber] = useState<string>("");
-  const [address, setAddress] = useState<string>("");
+  const { user } = useUser(); // Get user data from context
 
+  // State for form fields
+  const [fullName, setFullName] = useState<string>("Your Full Name");
+  const [role, setRole] = useState<string>("Your Role");
+  const [contactNumber, setContactNumber] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [website, setWebsite] = useState<string>(""); // Default to empty
+  const [address, setAddress] = useState<string>(""); // Default to empty
+
+  // Logo files and display URLs
   const [frontLogoFile, setFrontLogoFile] = useState<File | null>(null);
   const [backLogoFile, setBackLogoFile] = useState<File | null>(null);
-
   const [frontLogoDataURL, setFrontLogoDataURL] = useState<string | null>(null);
   const [backLogoDataURL, setBackLogoDataURL] = useState<string | null>(null);
 
+  // State for card flipping
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
   const [disableHover, setDisableHover] = useState<boolean>(false);
   const [downloading, setDownloading] = useState<boolean>(false);
 
   const isMobile = useMediaQuery("(max-width: 767px)");
+
+  // Prefill form fields with user data from context
+  useEffect(() => {
+    if (user) {
+      setFullName(user.name || "Your Full Name");
+      setRole("Founder & CEO"); // Default role if not provided
+      setContactNumber(user.contact?.toString() || ""); // Map `contact`
+      setEmail(user.email || ""); // Map `email`
+      setWebsite(""); // No website in the user data
+      setAddress(""); // No address in the user data
+    }
+  }, [user]);
 
   const handleFrontLogoUpload = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -55,6 +71,15 @@ export default function CardCustomization() {
 
       const objectUrl = URL.createObjectURL(file);
       setBackLogoDataURL(objectUrl);
+
+      // Flip the card and disable hover for 3 seconds
+      setIsFlipped(true);
+      setDisableHover(true);
+
+      setTimeout(() => {
+        setIsFlipped(false);
+        setDisableHover(false);
+      }, 3000); // 3 seconds
     } else {
       setBackLogoFile(null);
       setBackLogoDataURL(null);
@@ -66,18 +91,6 @@ export default function CardCustomization() {
   const handleCardFlip = () => {
     setIsFlipped(!isFlipped);
   };
-
-  useEffect(() => {
-    if (backLogoDataURL) {
-      setIsFlipped(true);
-      setDisableHover(true);
-      const timer = setTimeout(() => {
-        setIsFlipped(false);
-        setDisableHover(false);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [backLogoDataURL]);
 
   const handleDownload = async () => {
     try {
@@ -103,14 +116,17 @@ export default function CardCustomization() {
         : null;
 
       const payload = {
-        brandName,
+        fullName,
+        role,
         contactNumber: formattedNumber,
+        email,
+        website,
         address,
         frontLogoBase64,
         backLogoBase64,
       };
 
-      // Use the requestHandler to make the POST request
+      // Send payload to the server
       const response = await requestHandler<Blob>({
         method: "POST",
         url: "/api/generate-card",
@@ -141,19 +157,25 @@ export default function CardCustomization() {
           isMobile ? "flex-col-reverse" : "flex-row"
         } gap-8 w-full max-w-screen-lg`}
       >
+        {/* Form Section */}
         <div className="flex flex-col gap-4 w-full">
+          {/* Full Name */}
+
+          {/* Role */}
           <div className="flex flex-col">
-            <Label htmlFor="brandName" className="font-semibold">
-              Brand Name:
+            <Label htmlFor="role" className="font-semibold">
+              Role:
             </Label>
             <Input
-              id="brandName"
+              id="role"
               type="text"
-              value={brandName}
-              onChange={(e) => setBrandName(e.target.value)}
-              placeholder="Enter your brand name"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              placeholder="Enter your role"
             />
           </div>
+
+          {/* Contact Number */}
           <div className="flex flex-col">
             <Label htmlFor="contactNumber" className="font-semibold">
               Contact Number:
@@ -166,6 +188,36 @@ export default function CardCustomization() {
               placeholder="Enter your contact number"
             />
           </div>
+
+          {/* Email */}
+          <div className="flex flex-col">
+            <Label htmlFor="email" className="font-semibold">
+              Email:
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+            />
+          </div>
+
+          {/* Website */}
+          <div className="flex flex-col">
+            <Label htmlFor="website" className="font-semibold">
+              Website:
+            </Label>
+            <Input
+              id="website"
+              type="url"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              placeholder="Enter your website"
+            />
+          </div>
+
+          {/* Address */}
           <div className="flex flex-col">
             <Label htmlFor="address" className="font-semibold">
               Address:
@@ -178,6 +230,8 @@ export default function CardCustomization() {
               placeholder="Enter your address"
             />
           </div>
+
+          {/* Front Logo Upload */}
           <div className="flex flex-col">
             <Label htmlFor="frontLogo" className="font-semibold">
               Upload Front Logo (Black & White):
@@ -189,6 +243,8 @@ export default function CardCustomization() {
               onChange={handleFrontLogoUpload}
             />
           </div>
+
+          {/* Back Logo Upload */}
           <div className="flex flex-col">
             <Label htmlFor="backLogo" className="font-semibold">
               Upload Back Logo (White):
@@ -200,74 +256,32 @@ export default function CardCustomization() {
               onChange={handleBackLogoUpload}
             />
           </div>
+
+          {/* Download Button */}
           <Button onClick={handleDownload} className="mt-4">
             {downloading ? "Preparing Download..." : "Download Card Images"}
           </Button>
         </div>
-        <div className={styles.cardPreviewContainer}>
-          <div
-            className={`${styles.cardContainer} ${
-              isFlipped ? styles.isFlipped : ""
-            } ${disableHover ? styles.disableHover : ""}`}
-          >
-            <div
-              className={`${styles.card} ${
-                downloading ? styles.downloading : ""
-              }`}
-            >
-              <div className={`${styles.cardFace} ${styles.cardFaceFront}`}>
-                <div className={`${styles.cardContent}`}>
-                  <div className={styles.qrCode}>
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=48x48&data=${encodeURIComponent(
-                        "https://zalient.me/username"
-                      )}`}
-                      alt="QR Code"
-                    />
-                  </div>
-                  {frontLogoDataURL && (
-                    <div className={styles.brandLogo}>
-                      <img
-                        src={frontLogoDataURL}
-                        alt="Front Logo"
-                        className={`${styles.logoImage} frontLogo object-contain w-16 h-16`}
-                        style={{ filter: "brightness(0) invert(1)" }}
-                      />
-                    </div>
-                  )}
-                  <h2
-                    className={`${styles.brandName} ${pacifico.className}`}
-                    style={{
-                      marginTop: frontLogoDataURL ? "8px" : "24px",
-                    }}
-                  >
-                    {brandName}
-                  </h2>
-                  {formattedNumber && (
-                    <p className={styles.contactInfo}>{formattedNumber}</p>
-                  )}
-                  {address && <p className={styles.contactInfo}>{address}</p>}
-                </div>
-              </div>
-              <div className={`${styles.cardFace} ${styles.cardFaceBack}`}>
-                <div className={`${styles.cardContent}`}>
-                  {backLogoDataURL && (
-                    <div className="flex items-center justify-center h-full">
-                      <img
-                        src={backLogoDataURL}
-                        alt="Back Logo"
-                        className={`${styles.logoImage} backLogo object-contain w-32 h-32 opacity-75`}
-                        style={{ filter: "brightness(0) invert(1)" }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+
+        {/* Card Preview Section */}
+        <div className="flex flex-col items-center w-full">
+          <Card
+            isFlipped={isFlipped}
+            disableHover={disableHover}
+            frontLogoDataURL={frontLogoDataURL}
+            backLogoDataURL={backLogoDataURL}
+            fullName={fullName}
+            role={role}
+            formattedNumber={formattedNumber}
+            email={email}
+            website={website}
+            address={address}
+          />
+
+          {/* Flip Button for Mobile */}
           {isMobile && (
             <button
-              className="mt-2 flex items-center text-blue-500 hover:text-blue-700 swapButton"
+              className="mt-2 flex items-center text-blue-500 hover:text-blue-700"
               onClick={handleCardFlip}
               aria-label="Flip Card"
             >

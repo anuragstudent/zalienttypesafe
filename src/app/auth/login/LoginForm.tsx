@@ -52,7 +52,8 @@ export default function LoginForm() {
 
       if (!data.error && data.token) {
         // Save token in cookies
-        setCookie("token", data.token);
+
+        setCookie("token", data.token, { expires: 9999, path: "/" });
 
         // Optionally save user data in cookies
 

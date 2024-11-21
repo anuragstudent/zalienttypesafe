@@ -99,7 +99,8 @@ function generateCardHtml({
 }: GenerateCardHtmlProps): string {
   // Variables for controlling layout
   const scaleFactor = 2; // Overall scaling factor
-  const brandNameMarginTop = -4 * scaleFactor; // Adjust brand name position
+  const brandNameMarginTop = logoBase64 ? -4 * scaleFactor : 15 * scaleFactor; // Adjust brand name position based on logo presence
+
   const lineSpacing = 1.6; // Line height for text
   const textMargin = 0; // Margin between lines of text
   const logoBrightness = 0; // Control logo brightness (1 = normal, >1 = brighter, <1 = darker)

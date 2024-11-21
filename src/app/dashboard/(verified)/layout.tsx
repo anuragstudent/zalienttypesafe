@@ -20,21 +20,33 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
+import { UserProvider, useUser } from "@/context/UserContext";
 
 type User = {
   name: string;
   email: string;
+  contact: number;
   avatar: string;
   verified: boolean;
 };
 
+// Main layout wrapper
 export default function VerifiedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [user, setUser] = useState<User | null>(null);
+  return (
+    <UserProvider>
+      <VerifiedContent>{children}</VerifiedContent>
+    </UserProvider>
+  );
+}
+
+// Handles loading and fetching user data
+function VerifiedContent({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
+  const { user, setUser } = useUser();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -47,6 +59,7 @@ export default function VerifiedLayout({
           protected: true,
         });
         setUser(data.user);
+
         if (!data.user.verified) {
           router.replace("/dashboard/onboarding");
         }
@@ -59,7 +72,7 @@ export default function VerifiedLayout({
     }
 
     fetchUserData();
-  }, [router]);
+  }, [router, setUser]);
 
   if (isLoading) {
     return (
@@ -70,7 +83,7 @@ export default function VerifiedLayout({
   }
 
   if (!user || !user.verified) {
-    return null;
+    return null; // Avoid rendering if user is not available or verified
   }
 
   // Generate breadcrumbs based on pathname
@@ -100,6 +113,7 @@ export default function VerifiedLayout({
 
   return (
     <SidebarProvider>
+      {/* Pass user directly to AppSidebar */}
       <AppSidebar user={user} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
