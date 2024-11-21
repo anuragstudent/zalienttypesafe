@@ -1,5 +1,5 @@
 /* components/Card.module.css */
-body {
+:global(body) {
   line-height: initial !important;
   letter-spacing: -0.025em;
 }
