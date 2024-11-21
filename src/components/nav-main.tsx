@@ -14,7 +14,7 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-
+import { useSidebar } from "@/components/ui/sidebar";
 type NavMainProps = {
   items: {
     title: string;
@@ -30,6 +30,7 @@ type NavMainProps = {
 };
 
 export function NavMain({ items, currentPageUrl }: NavMainProps) {
+  const { toggleSidebar, isMobile } = useSidebar();
   const [expandedParent, setExpandedParent] = useState<string | null>(null);
 
   useEffect(() => {
@@ -80,7 +81,14 @@ export function NavMain({ items, currentPageUrl }: NavMainProps) {
                     />
                   </SidebarMenuButton>
                 ) : (
-                  <Link href={item.url || "#"}>
+                  <Link
+                    onClick={() => {
+                      if (isMobile) {
+                        toggleSidebar();
+                      }
+                    }}
+                    href={item.url || "#"}
+                  >
                     <SidebarMenuButton
                       tooltip={item.title}
                       className={topLevelClass}
@@ -114,13 +122,20 @@ export function NavMain({ items, currentPageUrl }: NavMainProps) {
                         }}
                       >
                         <SidebarMenuSubButton asChild>
-                          <Link href={subItem.url} legacyBehavior>
-                            <a className={subItemClass}>
+                          <Link
+                            href={subItem.url}
+                            onClick={() => {
+                              if (isMobile) {
+                                toggleSidebar();
+                              }
+                            }}
+                          >
+                            <p className={subItemClass}>
                               {subItem.icon && (
                                 <subItem.icon className="mr-2 flex-shrink-0 h-4 w-4" />
                               )}
                               <span>{subItem.title}</span>
-                            </a>
+                            </p>
                           </Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>

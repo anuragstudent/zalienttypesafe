@@ -6,6 +6,9 @@
     @apply inline-block;
   }
 }
+body {
+  @apply overflow-y-auto;
+}
 .perspective {
   perspective: 1000px;
 }

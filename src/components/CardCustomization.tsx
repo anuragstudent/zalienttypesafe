@@ -1,5 +1,3 @@
-// components/CardCustomization.tsx
-
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { RefreshCw } from "lucide-react";
@@ -152,9 +150,6 @@ export default function CardCustomization() {
       // Flip the back image horizontally to correct orientation
       backDataUrl = await flipImageHorizontally(backDataUrl);
 
-      // Re-enable flipping if it was disabled
-      setDisableHover(false);
-
       // Prepare payload
       const payload = {
         frontImage: frontDataUrl,
@@ -177,9 +172,14 @@ export default function CardCustomization() {
 
       toast.success(result.message);
     } catch (error) {
+      console.error("Upload Error:", error);
       toast.error((error as Error).message || "Something went wrong");
     } finally {
+      // Ensure cleanup happens regardless of success or failure
+      setDisableHover(false);
       setUploading(false);
+      frontCardRef.current?.classList.remove(styles.downloadBackground);
+      backCardRef.current?.classList.remove(styles.downloadBackground);
     }
   };
 
@@ -187,7 +187,9 @@ export default function CardCustomization() {
     <div
       className={`flex flex-col items-center justify-center p-4 ${poppins.className}`}
     >
-      <h1 className="text-2xl font-bold mb-4">Customize Your Card</h1>
+      <h1 className="text-2xl font-bold mb-4 text-muted-foreground">
+        Customize Your Card
+      </h1>
       <div
         className={`flex ${
           isMobile ? "flex-col-reverse" : "flex-row"
@@ -195,28 +197,18 @@ export default function CardCustomization() {
       >
         {/* Form Section */}
         <div className="flex flex-col gap-4 w-full">
-          {/* Full Name */}
-          <div className="flex flex-col">
-            <Label htmlFor="fullName" className="font-semibold">
-              Full Name:
-            </Label>
-            <Input
-              id="fullName"
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Enter your full name"
-            />
-          </div>
-
           {/* Role */}
           <div className="flex flex-col">
-            <Label htmlFor="role" className="font-semibold">
+            <Label
+              htmlFor="role"
+              className="font-semibold text-muted-foreground"
+            >
               Role:
             </Label>
             <Input
               id="role"
               type="text"
+              className="text-muted-foreground"
               value={role}
               onChange={(e) => setRole(e.target.value)}
               placeholder="Enter your role"
@@ -225,12 +217,16 @@ export default function CardCustomization() {
 
           {/* Contact Number */}
           <div className="flex flex-col">
-            <Label htmlFor="contactNumber" className="font-semibold">
+            <Label
+              htmlFor="contactNumber"
+              className="font-semibold text-muted-foreground"
+            >
               Contact Number:
             </Label>
             <Input
               id="contactNumber"
               type="text"
+              className="text-muted-foreground"
               value={contactNumber}
               onChange={(e) => setContactNumber(e.target.value)}
               placeholder="Enter your contact number"
@@ -239,12 +235,16 @@ export default function CardCustomization() {
 
           {/* Email */}
           <div className="flex flex-col">
-            <Label htmlFor="email" className="font-semibold">
+            <Label
+              htmlFor="email"
+              className="font-semibold text-muted-foreground"
+            >
               Email:
             </Label>
             <Input
               id="email"
               type="email"
+              className="text-muted-foreground"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
@@ -253,12 +253,16 @@ export default function CardCustomization() {
 
           {/* Website */}
           <div className="flex flex-col">
-            <Label htmlFor="website" className="font-semibold">
+            <Label
+              htmlFor="website"
+              className="font-semibold text-muted-foreground"
+            >
               Website:
             </Label>
             <Input
               id="website"
               type="url"
+              className="text-muted-foreground"
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
               placeholder="Enter your website"
@@ -267,12 +271,16 @@ export default function CardCustomization() {
 
           {/* Address */}
           <div className="flex flex-col">
-            <Label htmlFor="address" className="font-semibold">
+            <Label
+              htmlFor="address"
+              className="font-semibold text-muted-foreground"
+            >
               Address:
             </Label>
             <Input
               id="address"
               type="text"
+              className="text-muted-foreground"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Enter your address"
@@ -281,12 +289,16 @@ export default function CardCustomization() {
 
           {/* Front Logo Upload */}
           <div className="flex flex-col">
-            <Label htmlFor="frontLogo" className="font-semibold">
+            <Label
+              htmlFor="frontLogo"
+              className="font-semibold text-muted-foreground"
+            >
               Upload Front Logo (Black & White):
             </Label>
             <Input
               id="frontLogo"
               type="file"
+              className="text-muted-foreground"
               accept="image/*"
               onChange={handleFrontLogoUpload}
             />
@@ -294,12 +306,16 @@ export default function CardCustomization() {
 
           {/* Back Logo Upload */}
           <div className="flex flex-col">
-            <Label htmlFor="backLogo" className="font-semibold">
+            <Label
+              htmlFor="backLogo"
+              className="font-semibold text-muted-foreground"
+            >
               Upload Back Logo (White):
             </Label>
             <Input
               id="backLogo"
               type="file"
+              className="text-muted-foreground"
               accept="image/*"
               onChange={handleBackLogoUpload}
             />

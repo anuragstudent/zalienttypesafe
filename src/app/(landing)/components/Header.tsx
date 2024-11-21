@@ -35,13 +35,16 @@ export default function Header() {
     };
   }, []);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen((prev) => !prev);
-    if (!isSidebarOpen) {
+  useEffect(() => {
+    if (isSidebarOpen) {
       document.body.style.overflow = "hidden"; // Prevent scrolling when sidebar is open
     } else {
       document.body.style.overflow = ""; // Restore scrolling
     }
+  }, [isSidebarOpen]);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
   };
 
   return (
@@ -148,7 +151,11 @@ export default function Header() {
         {/* Sidebar Call-to-Actions */}
         <div className="p-4 border-t dark:border-gray-800">
           <Link href="/auth/login">
-            <Button variant="outline" className="w-full mb-2">
+            <Button
+              variant="outline"
+              className="w-full mb-2"
+              onClick={toggleSidebar}
+            >
               Login
             </Button>
           </Link>
