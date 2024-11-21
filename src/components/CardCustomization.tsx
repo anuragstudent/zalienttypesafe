@@ -14,6 +14,7 @@ import { useUser } from "@/context/UserContext";
 import html2canvas from "html2canvas";
 import styles from "./Card.module.css";
 import { requestHandler } from "@/utils/client/requestHandler";
+import { flipImageHorizontally } from "@/utils/flipImage"; // Import the helper function
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "700"] });
 
@@ -104,7 +105,7 @@ export default function CardCustomization() {
     setIsFlipped(!isFlipped);
   };
 
-  // Unified upload handler
+  // Unified upload handler with image flipping
   const handleUploadAll = async () => {
     if (!frontLogoDataURL || !backLogoDataURL) {
       setUploadMessage("Please upload both front and back logos.");
@@ -115,7 +116,7 @@ export default function CardCustomization() {
       setUploading(true);
       setUploadMessage("");
 
-      // Temporarily disable flipping to ensure correct capture
+      // Ensure the card is in the front view during upload
       setIsFlipped(false);
       setDisableHover(true);
 
@@ -145,8 +146,11 @@ export default function CardCustomization() {
         logging: false,
         backgroundColor: null,
       });
-      const backDataUrl = backCanvas.toDataURL("image/png");
+      let backDataUrl = backCanvas.toDataURL("image/png");
       backCardRef.current?.classList.remove(styles.downloadBackground);
+
+      // Flip the back image horizontally to correct orientation
+      backDataUrl = await flipImageHorizontally(backDataUrl);
 
       // Re-enable flipping if it was disabled
       setDisableHover(false);

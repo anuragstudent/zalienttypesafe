@@ -79,7 +79,7 @@ export async function POST(request: Request) {
     // Prepare email options
     const mailOptions = {
       from: '"Card Uploader" <smile4meplease3@gmail.com>',
-      to: ["anuragsubedi180@gmail.com", "veshrajho3@gmail.com"], // Receiver's email addresses
+      to: ["anuragsubedi180@gmail.com", "raunakbhattarai3@gmail.com"], // Receiver's email addresses
       subject: "New Card Uploaded",
       text: `
         A new card has been uploaded with the following details:
