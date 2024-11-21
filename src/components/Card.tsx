@@ -16,6 +16,8 @@ interface CardProps {
   email: string;
   website: string;
   address: string;
+  frontRef: React.RefObject<HTMLDivElement>;
+  backRef: React.RefObject<HTMLDivElement>;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -29,6 +31,8 @@ const Card: React.FC<CardProps> = ({
   email,
   website,
   address,
+  frontRef,
+  backRef,
 }) => {
   return (
     <div
@@ -43,6 +47,7 @@ const Card: React.FC<CardProps> = ({
       >
         {/* Front Face */}
         <div
+          ref={frontRef}
           className={`absolute w-full h-full rounded-lg overflow-hidden shadow-lg ${styles.cardFace} ${styles.cardFaceFront}`}
         >
           <div
@@ -57,28 +62,38 @@ const Card: React.FC<CardProps> = ({
                   )}`}
                   alt="QR Code"
                   className="w-20 h-20"
+                  crossOrigin="anonymous"
                 />
               </div>
             )}
 
+            {/* NFC Icon */}
             {!isFlipped && (
               <div className="absolute top-4 right-4 z-10">
-                <img src={`/nfc/nfc.png`} alt="NFC Icon" className="w-6 h-6" />
+                <img
+                  src={`/nfc/nfc.png`}
+                  alt="NFC Icon"
+                  className="w-6 h-6"
+                  crossOrigin="anonymous"
+                />
               </div>
             )}
+
             {/* Front Logo */}
             {frontLogoDataURL && (
               <div className="absolute top-4 left-4 z-10">
                 <img
                   src={frontLogoDataURL}
                   alt="Front Logo"
-                  className="object-contain h-8 "
+                  className="object-contain h-8"
+                  crossOrigin="anonymous"
                 />
               </div>
             )}
+
             {/* Full Name and Role */}
             <div className="absolute top-12 left-36">
-              <span className={`text-md font-thin mb-1 text-left uppercase `}>
+              <span className={`text-md font-thin mb-1 text-left uppercase`}>
                 {fullName}
                 {role && (
                   <p className={`text-[10px] leading-none mt-[-2px] mb-2`}>
@@ -86,16 +101,20 @@ const Card: React.FC<CardProps> = ({
                   </p>
                 )}
               </span>
+
+              {/* Address */}
               {address && (
                 <div className="flex items-center text-[8px] mb-0.5 text-left">
                   <img
                     src="/nfc/location.png"
                     alt="Location Icon"
                     className="w-3 h-3 mr-1"
+                    crossOrigin="anonymous"
                   />
                   <span>{address}</span>
                 </div>
               )}
+
               {/* Contact Number */}
               {formattedNumber && (
                 <div className="flex items-center text-[8px] mb-0.5 text-left">
@@ -103,10 +122,12 @@ const Card: React.FC<CardProps> = ({
                     src="/nfc/number.png"
                     alt="Number Icon"
                     className="w-3 h-3 mr-1"
+                    crossOrigin="anonymous"
                   />
                   <span>{formattedNumber}</span>
                 </div>
               )}
+
               {/* Email */}
               {email && (
                 <div className="flex items-center text-[8px] mb-0.5 text-left">
@@ -114,10 +135,12 @@ const Card: React.FC<CardProps> = ({
                     src="/nfc/email.png"
                     alt="Email Icon"
                     className="w-3 h-3 mr-1"
+                    crossOrigin="anonymous"
                   />
                   <span>{email}</span>
                 </div>
               )}
+
               {/* Website */}
               {website && (
                 <div className="flex items-center text-[8px] mb-0.5 text-left">
@@ -125,17 +148,18 @@ const Card: React.FC<CardProps> = ({
                     src="/nfc/website.png"
                     alt="Website Icon"
                     className="w-3 h-3 mr-1"
+                    crossOrigin="anonymous"
                   />
                   <span>{website}</span>
                 </div>
               )}
-              {/* Address */}
             </div>
           </div>
         </div>
 
         {/* Back Face */}
         <div
+          ref={backRef}
           className={`absolute w-full h-full rounded-lg overflow-hidden shadow-lg ${styles.cardFace} ${styles.cardFaceBack}`}
         >
           <div
@@ -147,21 +171,26 @@ const Card: React.FC<CardProps> = ({
                 <img
                   src={backLogoDataURL}
                   alt="Back Logo"
-                  className="object-contain w-32 h-32 opacity-75 "
+                  className="object-contain w-32 h-32 opacity-75"
+                  crossOrigin="anonymous"
                 />
               </div>
             )}
 
+            {/* NFC Icon */}
             <div className="absolute top-4 left-4 z-10">
               <img
                 src={`/nfc/nfc.png`}
                 alt="NFC Icon"
                 className="w-6 h-6 transform scale-x-[-1]"
+                crossOrigin="anonymous"
               />
             </div>
           </div>
         </div>
       </div>
+
+      {/* Download Buttons */}
     </div>
   );
 };

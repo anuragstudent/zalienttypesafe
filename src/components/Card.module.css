@@ -41,6 +41,22 @@
   transform: rotateY(180deg);
 }
 
+.cardFaceFront {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.downloadBackground {
+  background: #111 !important; /* Pure darker background */
+}
+
+.downloadBackground .cardContent {
+  background: #111 !important; /* Pure darker background for cardContent */
+}
+
+.downloadBackground .cardContent::after {
+  content: none !important; /* Remove overlay */
+}
+
 .cardContent {
   width: 100%;
   height: 100%;

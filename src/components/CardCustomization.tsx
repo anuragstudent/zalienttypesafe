@@ -1,6 +1,7 @@
+// components/CardCustomization.tsx
+
 "use client";
-import { saveAs } from "file-saver";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { RefreshCw } from "lucide-react";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Poppins } from "next/font/google";
 import Card from "./Card";
 import { useUser } from "@/context/UserContext"; // Import useUser hook
-import { requestHandler } from "@/utils/client/requestHandler"; // Adjust the import path as needed
+import * as htmlToImage from "html-to-image"; // Import html-to-image
+import styles from "./Card.module.css"; // Import styles to access downloadBackground class
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "700"] });
 
@@ -18,15 +20,13 @@ export default function CardCustomization() {
 
   // State for form fields
   const [fullName, setFullName] = useState<string>("Your Full Name");
-  const [role, setRole] = useState<string>("Your Role");
+  const [role, setRole] = useState<string>("Founder & CEO"); // Default role
   const [contactNumber, setContactNumber] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [website, setWebsite] = useState<string>(""); // Default to empty
   const [address, setAddress] = useState<string>(""); // Default to empty
 
-  // Logo files and display URLs
-  const [frontLogoFile, setFrontLogoFile] = useState<File | null>(null);
-  const [backLogoFile, setBackLogoFile] = useState<File | null>(null);
+  // Logo display URLs
   const [frontLogoDataURL, setFrontLogoDataURL] = useState<string | null>(null);
   const [backLogoDataURL, setBackLogoDataURL] = useState<string | null>(null);
 
@@ -37,6 +37,10 @@ export default function CardCustomization() {
 
   const isMobile = useMediaQuery("(max-width: 767px)");
 
+  // Refs to the front and back cards
+  const frontCardRef = useRef<HTMLDivElement>(null);
+  const backCardRef = useRef<HTMLDivElement>(null);
+
   // Prefill form fields with user data from context
   useEffect(() => {
     if (user) {
@@ -45,45 +49,64 @@ export default function CardCustomization() {
       setContactNumber(user.contact?.toString() || ""); // Map `contact`
       setEmail(user.email || ""); // Map `email`
       setWebsite(""); // No website in the user data
-      setAddress(user.address || ""); // No address in the user data
+      setAddress(user.address || ""); // Map `address` if available
     }
   }, [user]);
 
-  const handleFrontLogoUpload = (
+  const handleFrontLogoUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
-      setFrontLogoFile(file);
-
-      const objectUrl = URL.createObjectURL(file);
-      setFrontLogoDataURL(objectUrl);
+      try {
+        const base64 = await convertToBase64(file);
+        setFrontLogoDataURL(base64);
+      } catch (error) {
+        console.error("Error converting front logo to base64:", error);
+      }
     } else {
-      setFrontLogoFile(null);
       setFrontLogoDataURL(null);
     }
   };
 
-  const handleBackLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBackLogoUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
-      setBackLogoFile(file);
+      try {
+        const base64 = await convertToBase64(file);
+        setBackLogoDataURL(base64);
 
-      const objectUrl = URL.createObjectURL(file);
-      setBackLogoDataURL(objectUrl);
+        // Flip the card and disable hover for 3 seconds
+        setIsFlipped(true);
+        setDisableHover(true);
 
-      // Flip the card and disable hover for 3 seconds
-      setIsFlipped(true);
-      setDisableHover(true);
-
-      setTimeout(() => {
-        setIsFlipped(false);
-        setDisableHover(false);
-      }, 3000); // 3 seconds
+        setTimeout(() => {
+          setIsFlipped(false);
+          setDisableHover(false);
+        }, 3000); // 3 seconds
+      } catch (error) {
+        console.error("Error converting back logo to base64:", error);
+      }
     } else {
-      setBackLogoFile(null);
       setBackLogoDataURL(null);
     }
+  };
+
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          resolve(reader.result);
+        } else {
+          reject(new Error("Failed to convert file to base64"));
+        }
+      };
+      reader.onerror = (error) => reject(error);
+    });
   };
 
   const formattedNumber = contactNumber ? `+977 ${contactNumber}` : "";
@@ -92,58 +115,75 @@ export default function CardCustomization() {
     setIsFlipped(!isFlipped);
   };
 
-  const handleDownload = async () => {
-    try {
-      setDisableHover(true);
-      setDownloading(true); // Apply plain black background
+  const handleDownloadFront = async () => {
+    if (frontCardRef.current) {
+      try {
+        setDownloading(true);
+        setDisableHover(true);
 
-      // Convert image files to base64 data URLs
-      const getBase64 = (file: File) => {
-        return new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = () =>
-            reject(new Error("Failed to convert image to base64"));
-          reader.readAsDataURL(file);
+        // Add the download background class to change background to pure dark
+        frontCardRef.current.classList.add(styles.downloadBackground);
+
+        // Wait a moment for the class to apply
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // Use html-to-image to convert the front card to image
+        const dataUrl = await htmlToImage.toPng(frontCardRef.current, {
+          cacheBust: true,
         });
-      };
 
-      const frontLogoBase64 = frontLogoFile
-        ? await getBase64(frontLogoFile)
-        : null;
-      const backLogoBase64 = backLogoFile
-        ? await getBase64(backLogoFile)
-        : null;
+        // Create a link and trigger download
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = "front-card.png";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-      const payload = {
-        fullName,
-        role,
-        contactNumber: formattedNumber,
-        email,
-        website,
-        address,
-        frontLogoBase64,
-        backLogoBase64,
-      };
+        // Remove the download background class
+        frontCardRef.current.classList.remove(styles.downloadBackground);
+      } catch (error) {
+        console.error("Error generating image:", error);
+      } finally {
+        setDownloading(false);
+        setDisableHover(false);
+      }
+    }
+  };
 
-      // Send payload to the server
-      const response = await requestHandler<Blob>({
-        method: "POST",
-        url: "/api/generate-card",
-        body: payload,
-        headers: { "Content-Type": "application/json" },
-        responseType: "blob",
-        protected: true,
-      });
+  const handleDownloadBack = async () => {
+    if (backCardRef.current) {
+      try {
+        setDownloading(true);
+        setDisableHover(true);
 
-      // Save the received ZIP file
-      saveAs(response, "card-images.zip");
-    } catch (error) {
-      console.error("Error generating images:", error);
-      // Handle errors (e.g., show a notification to the user)
-    } finally {
-      setDownloading(false);
-      setDisableHover(false);
+        // Add the download background class to change background to pure dark
+        backCardRef.current.classList.add(styles.downloadBackground);
+
+        // Wait a moment for the class to apply
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // Use html-to-image to convert the back card to image
+        const dataUrl = await htmlToImage.toPng(backCardRef.current, {
+          cacheBust: true,
+        });
+
+        // Create a link and trigger download
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = "back-card.png";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Remove the download background class
+        backCardRef.current.classList.remove(styles.downloadBackground);
+      } catch (error) {
+        console.error("Error generating image:", error);
+      } finally {
+        setDownloading(false);
+        setDisableHover(false);
+      }
     }
   };
 
@@ -160,6 +200,18 @@ export default function CardCustomization() {
         {/* Form Section */}
         <div className="flex flex-col gap-4 w-full">
           {/* Full Name */}
+          <div className="flex flex-col">
+            <Label htmlFor="fullName" className="font-semibold">
+              Full Name:
+            </Label>
+            <Input
+              id="fullName"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Enter your full name"
+            />
+          </div>
 
           {/* Role */}
           <div className="flex flex-col">
@@ -257,15 +309,33 @@ export default function CardCustomization() {
             />
           </div>
 
-          {/* Download Button */}
-          <Button onClick={handleDownload} className="mt-4">
-            {downloading ? "Preparing Download..." : "Download Card Images"}
-          </Button>
+          {/* Download Buttons */}
+          <div className="flex flex-col">
+            {/* Download Front Side */}
+            <Button
+              onClick={handleDownloadFront}
+              className="mt-4"
+              disabled={downloading}
+            >
+              {downloading ? "Preparing Download..." : "Download Front Side"}
+            </Button>
+
+            {/* Download Back Side */}
+            <Button
+              onClick={handleDownloadBack}
+              className="mt-2"
+              disabled={downloading}
+            >
+              {downloading ? "Preparing Download..." : "Download Back Side"}
+            </Button>
+          </div>
         </div>
 
         {/* Card Preview Section */}
         <div className="flex flex-col items-center w-full">
           <Card
+            frontRef={frontCardRef} // Attach frontRef
+            backRef={backCardRef} // Attach backRef
             isFlipped={isFlipped}
             disableHover={disableHover}
             frontLogoDataURL={frontLogoDataURL}
