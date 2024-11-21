@@ -185,7 +185,7 @@ const Card: React.FC<CardProps> = ({
                 <img
                   src={backLogoDataURL}
                   alt="Back Logo"
-                  className="object-contain w-32 h-32 opacity-75"
+                  className="h-32"
                   crossOrigin="anonymous"
                 />
               </div>
