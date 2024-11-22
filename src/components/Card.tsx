@@ -117,10 +117,19 @@ const Card: React.FC<CardProps> = ({
             {/* Full Name and Role */}
             <div className="absolute top-12 left-36">
               {fullName && (
-                <div className="flex items-center  text-left uppercase font-medium text-base">
+                <div
+                  className={`flex items-center text-left uppercase font-medium ${
+                    fullName.length > 20
+                      ? "text-xs" // Smallest font size
+                      : fullName.length > 15
+                      ? "text-sm" // Medium font size
+                      : "text-base" // Default font size
+                  }`}
+                >
                   <span>{fullName}</span>
                 </div>
               )}
+
               {role && (
                 <div className="flex items-center text-left uppercase font-medium text-[10px] mt-[-5px] mb-1">
                   <span>{role}</span>
