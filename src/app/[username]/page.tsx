@@ -104,7 +104,8 @@ TEL:${profileData.contactNumber}
 ADR;TYPE=WORK:;;${profileData.location}
 END:VCARD
     `;
-    const blob = new Blob([vCard], { type: "text/vcard" });
+    const blob = new Blob([vCard], { type: "text/x-vcard" }); // Updated MIME type
+
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -192,7 +193,7 @@ END:VCARD
 
   return (
     <main className="relative mx-auto flex min-h-screen w-full flex-1 flex-col bg-gray-100 dark:bg-gray-900">
-      <div className="font-profile relative mx-auto w-full max-w-3xl md:px-2 md:pt-2">
+      <div className="font-profile relative mx-auto w-full max-w-3xl md:pt-2">
         {/* Cover Photo */}
         <div className="relative">
           <img
@@ -246,17 +247,17 @@ END:VCARD
           ))}
         </div>
         {/* Additional Info Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+        <div className="grid grid-cols-2 gap-2 mt-8 p-2">
           {profileData.additionalInfo.map((info, index) => (
             <div
               key={index}
-              className="flex items-center p-4 bg-white dark:bg-gray-800 shadow-xl rounded-lg space-x-4 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl"
+              className="flex flex-col md:flex-row items-center p-4 bg-white dark:bg-gray-800 shadow-xl rounded-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl"
             >
-              <div className="flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full shadow-md">
+              <div className="flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full shadow-md mb-2 md:mb-0 md:mr-4">
                 {getIcon(info.title)}
               </div>
-              <div>
-                <h4 className="text-gray-600 dark:text-gray-300 font-bold">
+              <div className="text-center md:text-left">
+                <h4 className="hidden md:block text-gray-600 dark:text-gray-300 font-bold">
                   {info.title}
                 </h4>
                 <p className="text-gray-800 dark:text-gray-200">{info.value}</p>
@@ -264,6 +265,7 @@ END:VCARD
             </div>
           ))}
         </div>
+
         {/* Contact Me Section */}
         <div className="mt-8 p-2">
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
@@ -348,7 +350,7 @@ END:VCARD
           <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
             Join Yourself
           </h3>
-          <p className="text-center text-gray-600 dark:text-gray-300 mb-4">
+          <p className=" text-gray-600 dark:text-gray-300 mb-4">
             For more info, add my contact to your device.
           </p>
           <div className="flex flex-col items-center space-y-4">
@@ -365,8 +367,8 @@ END:VCARD
             {/* Add to Contact CTA Button */}
           </div>
         </div>
-        <div className="mt-12 p-2">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 text-center">
+        <div className="mt-12">
+          <div className="bg-white dark:bg-gray-800 rounded-t-2xl shadow-xl p-6 text-center">
             <h3 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
               Add Me
             </h3>
