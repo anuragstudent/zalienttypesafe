@@ -24,6 +24,7 @@ import { UserProvider, useUser } from "@/context/UserContext";
 
 type User = {
   name: string;
+  username: string;
   address: string;
   email: string;
   contact: number;
@@ -93,14 +94,19 @@ function VerifiedContent({ children }: { children: React.ReactNode }) {
   const breadcrumbs = pathSegments.map((segment, index) => {
     const href = "/" + pathSegments.slice(0, index + 1).join("/");
     const isLast = index === pathSegments.length - 1;
+    const isFirst = index === 0;
 
     return (
       <React.Fragment key={href}>
         <BreadcrumbItem>
-          {isLast ? (
-            <BreadcrumbPage>
+          {isFirst ? (
+            <BreadcrumbPage className="text-muted-foreground">
               {segment.charAt(0).toUpperCase() + segment.slice(1)}
             </BreadcrumbPage>
+          ) : isLast ? (
+            <BreadcrumbLink href={href}>
+              {segment.charAt(0).toUpperCase() + segment.slice(1)}
+            </BreadcrumbLink>
           ) : (
             <BreadcrumbLink href={href}>
               {segment.charAt(0).toUpperCase() + segment.slice(1)}

@@ -6,6 +6,7 @@ import React, { createContext, useContext, useState } from "react";
 type User = {
   name: string;
   email: string;
+  username: string;
   contact: number;
   address: string;
   avatar: string;

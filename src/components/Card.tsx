@@ -4,10 +4,11 @@
 
 import React from "react";
 import styles from "./Card.module.css";
+import { QRCode } from "react-qrcode-logo";
 
 // Example Base64 images (Replace these with your actual Base64 strings)
 const NFC_ICON_BASE64 =
-  "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";
+  "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";
 const LOCATION_ICON_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAACa0lEQVR4nO2ZO2sVQRSAJz5QMYpIJIqCIAqCgqlM/AF2ol3UylqwUsHCQiIh2EliYWJ+QQot7MRG8RVFtAloq4RgjIJilBtfnxzuEcI1LGfWM7N7xQ8Glt3lDB8zc3bOTgj/+RNgHXAcuAY8Ad4CX7XJ9WN9dkzeDXUD2AJcBT5jR94dB3bWQWAVcBGYpzwyWpckVqhIogu4ix8Pgc25JfYCr/HnlcTOJdGdSGKxTHdqidU6BVLzIOma0YWdi6GUKfZvslMsC8COFCLyncjNmLdEJ/CpApF56dtTRLYdMTSAYaAXWKtNrkf0WQz9niKyP7IyDewriNWj71gZ9RSRDaCFRpFEi4x1ZCY9ReaMnQ5HxLxijDnrKSKp0ML+iJh9xpgNTxHrNOiMzIQWvniKvEkgst4Yc8ZT5EWFU2vKU+SmsdORBIv9uqfIkLFTWUs9xvRrTSADniL92JkukinxQTzsKbIJ+BHR+YJOnT7NTtIO6D3rSAjfJCm4iajMc/Jzz1WigqLqN2dTiOwmLz+B7e4iKvMso8idJBIqcjKjyNGUIpJ9PmSQmAFWJhNRmcsZRM4nlVCRbSXK1Rg+AhuSi6jMaEKRwSwSKrI10T+u98DGbCIqM5BA5FRWCRVZ4/wz+2XyTFUgc8JR5FAlEiqyDHjqIHG7MomW+kKOz8oiZ4m7Qh3AXkEuxelQF2geik6VkJDj6uWhTtCsBr9HSMjuYE+oI8BghMiZUFeAFcB9g8QtyXihztDcVL4rkJiVY7zQDgBHtFRtRdbQwdBOABeWEDkX2g2gA5hYJHFD7oV2hGZpPAk8cj3UDP8wvwAJyd2FGPUONgAAAABJRU5ErkJggg==";
 const NUMBER_ICON_BASE64 =
@@ -23,6 +24,7 @@ interface CardProps {
   frontLogoDataURL: string | null;
   backLogoDataURL: string | null;
   fullName: string;
+  username: string;
   role: string;
   formattedNumber: string;
   email: string;
@@ -43,6 +45,7 @@ const Card: React.FC<CardProps> = ({
   email,
   website,
   address,
+  username,
   frontRef,
   backRef,
 }) => {
@@ -67,14 +70,18 @@ const Card: React.FC<CardProps> = ({
           >
             {/* QR Code */}
             {!isFlipped && (
-              <div className="absolute left-10 top-14 z-10 qrCode">
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(
-                    "https://zalient.me/username"
-                  )}`}
-                  alt="QR Code"
-                  className="w-20 h-20"
-                  crossOrigin="anonymous"
+              <div className="absolute left-10 top-12 z-10 qrCode">
+                <QRCode
+                  bgColor="transparent"
+                  fgColor="white"
+                  // logoImage={`data:image/png;base64,${NFC_ICON_BASE64}`}
+                  // logoWidth={40}
+                  // logoHeight={40}
+                  removeQrCodeBehindLogo={true} // Ensures the area behind the logo is transparent
+                  qrStyle="dots"
+                  value={`https://zalient.me/${username}`}
+                  size={90}
+                  quietZone={2} // Adds padding to the QR code for better readability
                 />
               </div>
             )}

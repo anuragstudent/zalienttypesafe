@@ -13,6 +13,9 @@
 }
 
 .card {
+  font-smoothing: antialiased;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
   position: relative;
   width: 100%;
   height: 100%;

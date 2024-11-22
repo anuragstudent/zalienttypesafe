@@ -20,6 +20,7 @@ export default function CardCustomization() {
   const { user } = useUser();
 
   const [fullName, setFullName] = useState<string>("Your Full Name");
+  const [username, setUsername] = useState<string>("");
   const [role, setRole] = useState<string>("Founder & CEO");
   const [contactNumber, setContactNumber] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -42,6 +43,7 @@ export default function CardCustomization() {
   useEffect(() => {
     if (user) {
       setFullName(user.name || "Your Full Name");
+      setUsername(user.username || "");
       setRole("Founder & CEO");
       setContactNumber(user.contact?.toString() || "");
       setEmail(user.email || "");
@@ -105,11 +107,6 @@ export default function CardCustomization() {
 
   // Unified upload handler with image flipping
   const handleUploadAll = async () => {
-    if (!frontLogoDataURL || !backLogoDataURL) {
-      setUploadMessage("Please upload both front and back logos.");
-      return;
-    }
-
     try {
       setUploading(true);
       setUploadMessage("");
@@ -125,7 +122,7 @@ export default function CardCustomization() {
       frontCardRef.current?.classList.add(styles.downloadBackground);
       await document.fonts.ready;
       const frontCanvas = await html2canvas(frontCardRef.current!, {
-        scale: 4,
+        scale: 6,
         useCORS: true,
         allowTaint: true,
         logging: false,
@@ -138,7 +135,7 @@ export default function CardCustomization() {
       backCardRef.current?.classList.add(styles.downloadBackground);
       await document.fonts.ready;
       const backCanvas = await html2canvas(backCardRef.current!, {
-        scale: 4,
+        scale: 6,
         useCORS: true,
         allowTaint: true,
         logging: false,
@@ -346,6 +343,7 @@ export default function CardCustomization() {
             frontRef={frontCardRef}
             backRef={backCardRef}
             isFlipped={isFlipped}
+            username={username}
             disableHover={disableHover}
             frontLogoDataURL={frontLogoDataURL}
             backLogoDataURL={backLogoDataURL}
