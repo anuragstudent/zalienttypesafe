@@ -70,7 +70,7 @@ const Card: React.FC<CardProps> = ({
           >
             {/* QR Code */}
             {!isFlipped && (
-              <div className="absolute left-10 top-[62] z-10 qrCode">
+              <div className="absolute left-10 top-12 z-10 qrCode">
                 <QRCode
                   bgColor="transparent"
                   fgColor="white"
@@ -81,8 +81,8 @@ const Card: React.FC<CardProps> = ({
                   qrStyle="dots"
                   value={`https://zalient.me/${username}`}
                   style={{
-                    width: "80px",
-                    height: "80px",
+                    width: "90px",
+                    height: "90px",
                   }}
                   size={300}
                   quietZone={2} // Adds padding to the QR code for better readability
@@ -115,7 +115,7 @@ const Card: React.FC<CardProps> = ({
             )}
 
             {/* Full Name and Role */}
-            <div className="absolute top-14 left-36">
+            <div className="absolute top-12 left-36">
               {fullName && (
                 <div className="flex items-center  text-left uppercase font-medium text-base">
                   <span>{fullName}</span>
