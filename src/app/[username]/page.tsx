@@ -93,27 +93,45 @@ function Page() {
   };
 
   const handleAddToContact = () => {
-    const vCard = `
-BEGIN:VCARD
+    const vCard = `BEGIN:VCARD
 VERSION:3.0
-FN:${profileData.name}
+FN;CHARSET=UTF-8:${profileData.name}
+N;CHARSET=UTF-8:${profileData.name};;;
 TITLE:${profileData.role}
 EMAIL:${profileData.email}
 URL:${profileData.website}
 TEL:${profileData.contactNumber}
 ADR;TYPE=WORK:;;${profileData.location}
-END:VCARD
-    `;
-    const blob = new Blob([vCard], { type: "text/x-vcard" }); // Updated MIME type
+END:VCARD`;
 
+    const blob = new Blob([vCard], { type: "text/vcard" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${profileData.name.replace(" ", "_")}.vcf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const isIOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) && !("MSStream" in window);
+
+    if (isIOS) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        if (e.target && typeof e.target.result === "string") {
+          const link = document.createElement("a");
+          link.href = e.target.result;
+          link.download = `${profileData.name.replace(/ /g, "_")}.vcf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }
+      };
+      reader.readAsDataURL(blob);
+    } else {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${profileData.name.replace(/ /g, "_")}.vcf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
   };
 
   const getIcon = (title: string) => {
