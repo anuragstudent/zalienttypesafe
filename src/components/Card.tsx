@@ -70,7 +70,7 @@ const Card: React.FC<CardProps> = ({
           >
             {/* QR Code */}
             {!isFlipped && (
-              <div className="absolute left-10 top-[52] z-10 qrCode">
+              <div className="absolute left-10 top-[62] z-10 qrCode">
                 <QRCode
                   bgColor="transparent"
                   fgColor="white"
@@ -80,7 +80,11 @@ const Card: React.FC<CardProps> = ({
                   removeQrCodeBehindLogo={true} // Ensures the area behind the logo is transparent
                   qrStyle="dots"
                   value={`https://zalient.me/${username}`}
-                  size={80}
+                  style={{
+                    width: "80px",
+                    height: "80px",
+                  }}
+                  size={300}
                   quietZone={2} // Adds padding to the QR code for better readability
                 />
               </div>
@@ -88,7 +92,7 @@ const Card: React.FC<CardProps> = ({
 
             {/* NFC Icon */}
             {!isFlipped && (
-              <div className="absolute top-4 right-4 z-10">
+              <div className="absolute top-2 right-4 z-10">
                 <img
                   src={`data:image/png;base64,${NFC_ICON_BASE64}`}
                   alt="NFC Icon"
@@ -100,7 +104,7 @@ const Card: React.FC<CardProps> = ({
 
             {/* Front Logo */}
             {frontLogoDataURL && !isFlipped && (
-              <div className="absolute top-4 left-4 z-10">
+              <div className="absolute top-2 left-4 z-10">
                 <img
                   src={frontLogoDataURL}
                   alt="Front Logo"
@@ -111,7 +115,7 @@ const Card: React.FC<CardProps> = ({
             )}
 
             {/* Full Name and Role */}
-            <div className="absolute top-12 left-36">
+            <div className="absolute top-14 left-36">
               {fullName && (
                 <div className="flex items-center  text-left uppercase font-medium text-base">
                   <span>{fullName}</span>
@@ -199,7 +203,7 @@ const Card: React.FC<CardProps> = ({
             )}
 
             {/* NFC Icon */}
-            <div className="absolute top-4 left-4 z-10">
+            <div className="absolute top-2 left-4 z-10">
               <img
                 src={`data:image/png;base64,${NFC_ICON_BASE64}`}
                 alt="NFC Icon"
