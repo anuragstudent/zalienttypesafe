@@ -80,7 +80,7 @@ const Testimonial: React.FC = () => {
                 suggestions with us to improve the platform.
               </p>
               <div className="z-50 flex gap-4 -top-4 lg:top-40">
-                <a
+                <Link
                   className="inline-flex items-center justify-center px-4 py-1 text-sm text-black transition duration-300 bg-white select-none whitespace-nowrap rounded-xl focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 active:scale-95 hover:bg-black/75 dark:hover:bg-white/80 h-9"
                   href="/contact"
                 >
@@ -99,7 +99,7 @@ const Testimonial: React.FC = () => {
                   >
                     <path d="m9 18 6-6-6-6"></path>
                   </svg>
-                </a>
+                </Link>
                 <Link
                   className="inline-flex items-center justify-center px-4 py-1 text-sm transition duration-300 border select-none whitespace-nowrap rounded-xl focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 active:scale-95 border-white/15 hover:bg-white/10 h-9"
                   href="/auth/register"
