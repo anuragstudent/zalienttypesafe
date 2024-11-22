@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { requestHandler } from "@/utils/client/requestHandler";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarProvider,
@@ -79,7 +78,11 @@ function VerifiedContent({ children }: { children: React.ReactNode }) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="animate-spin text-gray-600" size={48} />
+        <img
+          src="/icon.png"
+          alt="Logo"
+          className="h-12 w-auto animate-bounce"
+        />
       </div>
     );
   }
