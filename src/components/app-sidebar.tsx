@@ -26,6 +26,7 @@ import {
   SquareTerminal,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { User } from "@/context/UserContext";
 
 // Sidebar data structure
 const data = {
@@ -81,12 +82,6 @@ const data = {
       plan: "Free",
     },
   ],
-};
-
-type User = {
-  name: string;
-  email: string;
-  avatar: string;
 };
 
 export function AppSidebar({

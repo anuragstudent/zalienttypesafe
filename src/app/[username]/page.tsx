@@ -51,10 +51,7 @@ function Page() {
         name: "Facebook",
         url: "https://www.facebook.com/anuragsubedi",
       },
-      {
-        name: "Twitter",
-        url: "https://twitter.com/anuragsubedi",
-      },
+
       {
         name: "Instagram",
         url: "https://www.instagram.com/anuragsubedi",

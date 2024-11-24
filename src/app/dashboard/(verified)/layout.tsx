@@ -19,17 +19,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import { UserProvider, useUser } from "@/context/UserContext";
-
-type User = {
-  name: string;
-  username: string;
-  address: string;
-  email: string;
-  contact: number;
-  avatar: string;
-  verified: boolean;
-};
+import { UserProvider, useUser, User } from "@/context/UserContext";
 
 // Main layout wrapper
 export default function VerifiedLayout({
@@ -92,7 +82,7 @@ function VerifiedContent({ children }: { children: React.ReactNode }) {
   }
 
   // Generate breadcrumbs based on pathname
-  const pathSegments = pathname.split("/").filter((segment) => segment); // Remove empty segments
+  const pathSegments = pathname.split("/").filter((segment) => segment);
 
   const breadcrumbs = pathSegments.map((segment, index) => {
     const href = "/" + pathSegments.slice(0, index + 1).join("/");
@@ -123,7 +113,6 @@ function VerifiedContent({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      {/* Pass user directly to AppSidebar */}
       <AppSidebar user={user} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
